@@ -30,7 +30,7 @@ public class MainActivity extends Activity implements PlayerSelectionListener  {
     private static final int GET_PLAYER_TO_ADD = 0;
 
 
-    private static final String PLAYER_LIST_KEY = "pss.rookscore.MainActivity.PlayerList";
+    private static final String PLAYER_LIST_KEY = MainActivity.class.getName() + ".PlayerList";
 
     
     private ArrayList<String> mPlayerList = new ArrayList<String>();

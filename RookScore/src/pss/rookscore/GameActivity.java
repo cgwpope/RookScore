@@ -16,9 +16,9 @@ import android.view.MenuItem;
 
 public class GameActivity extends Activity {
 
-    private static final String GAME_STATE_MODEL = "pss.rookscore.GameActivity.GameStateModel";
+    private static final String GAME_STATE_MODEL_KEY =  GameActivity.class.getName() + ".GameStateModel";
 
-    public static final String PLAYER_LIST_KEY = "pss.rookscore.GameActivity.PlayerList";
+    public static final String PLAYER_LIST_KEY = GameActivity.class.getName() + ".PlayerList";
 
     private static final int PLAY_ROUND_REQUEST = 1;
     
@@ -77,7 +77,7 @@ public class GameActivity extends Activity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable(GAME_STATE_MODEL, mGameModel);
+        outState.putSerializable(GAME_STATE_MODEL_KEY, mGameModel);
     }
 
     
@@ -124,7 +124,7 @@ public class GameActivity extends Activity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        Serializable gameState = savedInstanceState.getSerializable(GAME_STATE_MODEL);
+        Serializable gameState = savedInstanceState.getSerializable(GAME_STATE_MODEL_KEY);
         if(gameState != null){
             mGameModel = (GameStateModel)gameState;
         }

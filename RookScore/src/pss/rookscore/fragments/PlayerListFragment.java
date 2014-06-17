@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pss.rookscore.R;
+import pss.rookscore.fragments.BidFragment.BidSelectionListener;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
@@ -40,7 +41,6 @@ public class PlayerListFragment extends Fragment {
 
     private static final String PLAYER_LIST = PlayerListFragment.class.getName() + ".PlayerList";
 
-    private String mFilter;
     private ArrayAdapter<String> mListAdapter;
     private List<String> mPlayerList = new ArrayList<String>();
 
@@ -106,6 +106,12 @@ public class PlayerListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        
+        if(!(getActivity() instanceof PlayerSelectionListener)){
+            throw new IllegalArgumentException("Parent activity must implement " + PlayerSelectionListener.class.getName());
+        }
+
+        
         populateList();
     }
 

@@ -1,6 +1,7 @@
 package pss.rookscore.fragments;
 
 import pss.rookscore.R;
+import pss.rookscore.fragments.AddPlayerFragment.AddPlayerListener;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -33,6 +34,11 @@ public class BidFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        
+        
+        if(!(getActivity() instanceof BidSelectionListener)){
+            throw new IllegalArgumentException("Parent activity must implement " + BidSelectionListener.class.getName());
+        }
         
         mSlider = (SeekArc)getView().findViewById(R.id.bidSelectorSeekArc);
         mLabel = (TextView)getView().findViewById(R.id.seekArcProgress);

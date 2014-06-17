@@ -25,9 +25,9 @@ import android.widget.EditText;
 
 public class AddPlayerActivity extends Activity implements PlayerSelectionListener {
 
-    /* package */static final String ADD_PLAYER_RESULT_KEY = "pss.rookscore.AddPlayerActivity.AddPlayerResult";
-    public static final String PLAYER_NAMES_KEY = "pss.rookscore.fragments.PlayerListFragment.PlayerNames";
-    private static final String STORED_PLAYER_NAMES = AddPlayerActivity.class.getName()+ ".StoredPlayerNames";
+    /* package */static final String ADD_PLAYER_RESULT_KEY =  AddPlayerActivity.class.getName() + ".AddPlayerResult";
+    public static final String PLAYER_NAMES_KEY = AddPlayerActivity.class.getName() + ".PlayerNames";
+    private static final String STORED_PLAYER_NAMES_PREFS_KEY = AddPlayerActivity.class.getName()+ ".StoredPlayerNames";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,11 +84,11 @@ public class AddPlayerActivity extends Activity implements PlayerSelectionListen
     protected void addPlayer(String name) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        Set<String> stringSet = prefs.getStringSet(STORED_PLAYER_NAMES, new HashSet<String>());
+        Set<String> stringSet = prefs.getStringSet(STORED_PLAYER_NAMES_PREFS_KEY, new HashSet<String>());
         stringSet.add(name);
         Editor prefEditor = prefs.edit();
         prefEditor.clear();
-        prefEditor.putStringSet(STORED_PLAYER_NAMES, stringSet);
+        prefEditor.putStringSet(STORED_PLAYER_NAMES_PREFS_KEY, stringSet);
         prefEditor.commit();
         loadPlayerList();
     }
@@ -105,7 +105,7 @@ public class AddPlayerActivity extends Activity implements PlayerSelectionListen
 
         // load playerlist from preferences
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        Set<String> stringSet = prefs.getStringSet(STORED_PLAYER_NAMES, new HashSet<String>());
+        Set<String> stringSet = prefs.getStringSet(STORED_PLAYER_NAMES_PREFS_KEY, new HashSet<String>());
         List<String> orderedPlayerList = new ArrayList<String>(stringSet);
         Collections.sort(orderedPlayerList);
 
@@ -133,11 +133,11 @@ public class AddPlayerActivity extends Activity implements PlayerSelectionListen
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                        Set<String> stringSet = prefs.getStringSet(STORED_PLAYER_NAMES, new HashSet<String>());
+                        Set<String> stringSet = prefs.getStringSet(STORED_PLAYER_NAMES_PREFS_KEY, new HashSet<String>());
                         stringSet.remove(playerName);
                         Editor prefEditor = prefs.edit();
                         prefEditor.clear();
-                        prefEditor.putStringSet(STORED_PLAYER_NAMES, stringSet);
+                        prefEditor.putStringSet(STORED_PLAYER_NAMES_PREFS_KEY, stringSet);
                         prefEditor.commit();
                         loadPlayerList();
                     }

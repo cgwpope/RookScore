@@ -33,7 +33,16 @@ public class ScoresheetFragment extends Fragment {
         
         //compute summary
         
-        List<RoundSummary> rounds = new ArrayList<RoundSummary>();
+        //update the view
+        ((ScoresheetHeaderView)getView().findViewById(R.id.scoresheetHeaderView)).setGameStateModel(model);
+        ((ScoresheetBodyView)getView().findViewById(R.id.scoresheetBodyView)).setGameStateModel(model);
+
+        scoreUpdated();
+    }
+
+
+	private List<RoundSummary> computeRoundScores(GameStateModel model) {
+		List<RoundSummary> rounds = new ArrayList<RoundSummary>();
         
         for(int i = 0; i < model.getRounds().size(); i++){
             
@@ -53,14 +62,8 @@ public class ScoresheetFragment extends Fragment {
             rounds.add(new RoundSummary(model.getRounds().get(i), newRoundScore));
         }
         
-        
-        //update the view
-        ((ScoresheetHeaderView)getView().findViewById(R.id.scoresheetHeaderView)).setPlayerNames(model.getPlayers());
-        ((ScoresheetBodyView)getView().findViewById(R.id.scoresheetBodyView)).setPlayerNames(model.getPlayers());
-        ((ScoresheetBodyView)getView().findViewById(R.id.scoresheetBodyView)).setRoundSummaries(rounds);
-
-
-    }
+        return rounds;
+	}
 
 
     private Map<String, Integer> computeRoundScore(ArrayList<String> players, Map<String, Integer> previousRoundScores, RoundResult roundResult) {
@@ -123,7 +126,8 @@ public class ScoresheetFragment extends Fragment {
 
 
     public void scoreUpdated() {
-        ((ScoresheetBodyView)getView().findViewById(R.id.scoresheetBodyView)).requestLayout();
+        List<RoundSummary> computeRoundScores = computeRoundScores(mGameStateModel);
+        ((ScoresheetBodyView)getView().findViewById(R.id.scoresheetBodyView)).setRoundScores(computeRoundScores);
     }
     
     

@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import pss.rookscore.GameStateModel;
 import pss.rookscore.GameStateModel.RoundResult;
+import pss.rookscore.fragments.views.ScoresheetBodyView.RoundSummary;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -14,19 +16,14 @@ import android.view.View;
 public class ScoresheetBodyView extends View {
 
     
-
-    static final int TEXT_SIZE = 16;
-
-    static final int ROUND_SUMMARY_WIDTH = 150;
-    
-    private List<String> mPlayerNames;
     private final Paint mPaint;
     private List<RoundSummary> mRoundSummaries = new ArrayList<ScoresheetBodyView.RoundSummary>();
+	private GameStateModel mModel;
     
     public ScoresheetBodyView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mPaint = new Paint();
-        mPaint.setTextSize(scaleText(getContext(), TEXT_SIZE));
+        mPaint.setTextSize(scaleText(getContext(), ViewUtilities.TEXT_SIZE));
 
     }
 
@@ -36,11 +33,14 @@ public class ScoresheetBodyView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         
-        if(mPlayerNames != null && mPlayerNames.size() > 0){
+        
+        ArrayList<String> playerNames = mModel.getPlayers();
+        
+        if(playerNames != null && playerNames.size() > 0){
             //evenly allocate width to players, draw their names
             
-            int widthAvailable = getWidth() - (int)ScoresheetBodyView.scaleText(getContext(), ROUND_SUMMARY_WIDTH);
-            float widthPerPlayer = widthAvailable/mPlayerNames.size();
+            int widthAvailable = getWidth() - (int)ScoresheetBodyView.scaleText(getContext(), ViewUtilities.ROUND_SUMMARY_WIDTH);
+            float fullWidth = widthAvailable/playerNames.size();
             
             StringBuilder roundSummaryText = new StringBuilder();
             
@@ -48,70 +48,76 @@ public class ScoresheetBodyView extends View {
             for (RoundSummary summary : mRoundSummaries) {
                 
                 //display the score per player, and then the round summary
-                for(int i = 0; i < mPlayerNames.size(); i++){
+                for(int i = 0; i < playerNames.size(); i++){
                     
                     //use paint to clip text
-                    String playerName = mPlayerNames.get(i);
+                    String playerName = playerNames.get(i);
                     
                     //TODO: Special case for numChars == 0: reduce font size?
 
                     String textToDraw = "" + summary.getRoundScores().get(playerName);
                     float textWidth = mPaint.measureText(textToDraw);
-                    float midPoint = i * widthPerPlayer + widthPerPlayer/2;
-                    canvas.drawText(textToDraw, midPoint - textWidth/2, mPaint.getTextSize() * (row + 1), mPaint);
+
+                    float leftmost = i * fullWidth;
+                    
+                    canvas.drawText(textToDraw, ViewUtilities.computeCentredStringStart(leftmost, fullWidth, textWidth), mPaint.getTextSize() * (row + 1), mPaint);
                 }
                 
                 
                 roundSummaryText.setLength(0);
                 
-                roundSummaryText
-                .append(ViewUtilities.shorterName(mPlayerNames, summary.getRoundResult().getCaller()))
-                .append(' ')
-                .append('(')
-                .append(summary.getRoundResult().getBid())
-                .append(')');
-                
-                if(summary.getRoundResult().getCaller().equals(summary.getRoundResult().getParter())){
-                    roundSummaryText.append(" -- ");
-                } else {
-                    roundSummaryText
-                    .append(',')
-                    .append(ViewUtilities.shorterName(mPlayerNames, summary.getRoundResult().getParter()))
-                    .append(" - ");
-                }
+                summarizeRoundResult(roundSummaryText, summary);
                 
                 
                 
-                roundSummaryText.append(summary.getRoundResult().getMade());
-                
-                if(summary.getRoundResult().getMade() >= summary.getRoundResult().getBid()){
-                    roundSummaryText.append('\u2713');
-                } else {
-                    roundSummaryText.append('\u2717');
-                }
-                
-                
-                
-                canvas.drawText(roundSummaryText.toString(), getWidth() - ScoresheetBodyView.scaleText(getContext(), ROUND_SUMMARY_WIDTH),  mPaint.getTextSize() * (row + 1), mPaint);
+                canvas.drawText(roundSummaryText.toString(), getWidth() - ScoresheetBodyView.scaleText(getContext(), ViewUtilities.ROUND_SUMMARY_WIDTH),  mPaint.getTextSize() * (row + 1), mPaint);
                 
                 row++;
             }
         }
     }
-    
-    @Override
+
+
+
+	private void summarizeRoundResult(StringBuilder roundSummaryText, RoundSummary summary) {
+		roundSummaryText
+		.append(ViewUtilities.shorterName(mModel.getPlayers(), summary.getRoundResult().getCaller()))
+		.append(' ')
+		.append('(')
+		.append(summary.getRoundResult().getBid())
+		.append(')');
+		
+		if(summary.getRoundResult().getCaller().equals(summary.getRoundResult().getParter())){
+		    roundSummaryText.append(" -- ");
+		} else {
+		    roundSummaryText
+		    .append(',')
+		    .append(ViewUtilities.shorterName(mModel.getPlayers(), summary.getRoundResult().getParter()))
+		    .append(" - ");
+		}
+		
+		
+		
+		roundSummaryText.append(summary.getRoundResult().getMade());
+		
+		if(summary.getRoundResult().getMade() >= summary.getRoundResult().getBid()){
+		    roundSummaryText.append('\u2713'); //checkmark
+		} else {
+		    roundSummaryText.append('\u2717'); //X
+		}
+	}
+
+
+
+	@Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        setMeasuredDimension(View.MeasureSpec.getSize(widthMeasureSpec), (int)scaleText(getContext(), TEXT_SIZE) * mRoundSummaries.size());
+        setMeasuredDimension(View.MeasureSpec.getSize(widthMeasureSpec), (int)scaleText(getContext(), ViewUtilities.TEXT_SIZE) * mRoundSummaries.size());
     }
     
-    public void setPlayerNames(List<String> playerNames){
-        mPlayerNames = playerNames;
-    }
     
     public void setRoundSummaries(List<RoundSummary> summaries){
         mRoundSummaries = summaries;
     }
-    
     
     
     public static class RoundSummary {
@@ -137,6 +143,19 @@ public class ScoresheetBodyView extends View {
     public static float scaleText(Context c, int size){
         return c.getResources().getDisplayMetrics().density * size;
     }
+
+
+
+	public void setGameStateModel(GameStateModel model) {
+		mModel = model;
+		requestLayout();
+	}
+
+
+	public void setRoundScores(List<RoundSummary> roundSummaries) {
+		mRoundSummaries = roundSummaries;
+		requestLayout();
+	}
     
 
     

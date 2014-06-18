@@ -2,10 +2,9 @@ package pss.rookscore;
 
 import java.util.ArrayList;
 
-import com.triggertrap.seekarc.SeekArc;
-
 import pss.rookscore.fragments.BidFragment;
 import pss.rookscore.fragments.BidFragment.BidSelectionListener;
+import pss.rookscore.fragments.MadeBidFragment;
 import pss.rookscore.fragments.PlayerListFragment;
 import pss.rookscore.fragments.PlayerListFragment.PlayerSelectionListener;
 import android.app.Activity;
@@ -94,19 +93,34 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         //assume single fragment for now
         Fragment newFragment;
+        
         if(mCaller == null){
             //start with showing the PlayerSelectionFragment
             PlayerListFragment playerListFragment = new PlayerListFragment();
             playerListFragment.setPlayerList(mPlayerList);
             newFragment = playerListFragment;
+            setTitle("Select Caller");
         } else if(mBid == 0){
-            newFragment = new BidFragment();            
-        }  else if(mPartner == null){
+        	BidFragment bidFragment = new BidFragment();
+        	Bundle bundle = new Bundle();
+        	bundle.putInt(BidFragment.kStartingBidArg, 150);
+			bidFragment.setArguments(bundle);
+            newFragment = bidFragment;
+            
+            setTitle("Enter Bid");
+        } else if(mPartner == null){
             PlayerListFragment playerListFragment = new PlayerListFragment();
             playerListFragment.setPlayerList(mPlayerList);
             newFragment = playerListFragment;
+            setTitle("Select Partner");
         } else if(mMade == 0) {
-            newFragment = new BidFragment();            
+        	BidFragment bidFragment = new MadeBidFragment();
+        	Bundle bundle = new Bundle();
+        	bundle.putInt(BidFragment.kStartingBidArg, mBid);
+			bidFragment.setArguments(bundle);
+            newFragment = bidFragment;
+            
+            setTitle("Points Made");
         } else {
             newFragment = null;
         }

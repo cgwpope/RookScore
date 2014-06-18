@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item 
         android:id="@+id/actionBarStartGameAction"
-        android:title="S"
+        android:title="Start"
         android:showAsAction="ifRoom"
         />
     <item 

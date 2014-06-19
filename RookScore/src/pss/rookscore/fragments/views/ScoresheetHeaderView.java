@@ -1,11 +1,13 @@
 package pss.rookscore.fragments.views;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import pss.rookscore.GameStateModel;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -15,11 +17,13 @@ public class ScoresheetHeaderView extends View {
 
     private final Paint mPaint;
 	private GameStateModel mModel;
+    private List<RoundSummary> mRoundScores;
     
     public ScoresheetHeaderView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mPaint = new Paint();
-        mPaint.setTextSize(ScoresheetBodyView.scaleText(getContext(), ViewUtilities.TEXT_SIZE));
+        mPaint.setTextSize(ViewUtilities.scaleText(getContext(), ViewUtilities.TEXT_SIZE));
+        mPaint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
     }
 
     
@@ -34,7 +38,7 @@ public class ScoresheetHeaderView extends View {
         if(playerNames != null && playerNames.size() > 0){
             //evenly allocate width to players, draw their names
             
-            int widthAvailable = getWidth() - (int)ScoresheetBodyView.scaleText(getContext(), ViewUtilities.ROUND_SUMMARY_WIDTH);
+            int widthAvailable = getWidth() - (int)ViewUtilities.computeRoundSummaryWidth(mRoundScores, mPaint, mModel.getPlayers());
             
             float widthPerPlayer = widthAvailable/playerNames.size();
             
@@ -69,12 +73,18 @@ public class ScoresheetHeaderView extends View {
     
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        setMeasuredDimension(View.MeasureSpec.getSize(widthMeasureSpec), (int)ScoresheetBodyView.scaleText(getContext(), ViewUtilities.TEXT_SIZE));
+        setMeasuredDimension(View.MeasureSpec.getSize(widthMeasureSpec), (int)ViewUtilities.computeRowHeight(mPaint, getContext()));
     }
     
     public void setGameStateModel(GameStateModel model){
         mModel = model;
         invalidate();
+    }
+
+
+
+    public void setRoundScores(List<RoundSummary> computeRoundScores) {
+        mRoundScores = computeRoundScores;
     }
     
     

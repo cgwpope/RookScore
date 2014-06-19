@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.triggertrap.seekarc.SeekArc;
@@ -27,6 +28,8 @@ public class BidFragment extends Fragment {
 
     protected TextView mLabel;
     private SeekArc mSlider;
+    private Button mAddButton;
+    private Button mSubtractButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -45,6 +48,10 @@ public class BidFragment extends Fragment {
         
         mSlider = (SeekArc)getView().findViewById(R.id.bidSelectorSeekArc);
         mLabel = (TextView)getView().findViewById(R.id.seekArcProgress);
+        mAddButton = (Button)getView().findViewById(R.id.increaseBy5Button);
+        mSubtractButton = (Button)getView().findViewById(R.id.reduceBy5Button);
+        
+        
         
 		mSlider.setProgress(startingBid / 5);
 		mLabel.setText(getLabelText(mSlider.getProgress() * 5, startingBid));
@@ -70,6 +77,24 @@ public class BidFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 ((BidSelectionListener)getActivity()).bidSelected(mSlider.getProgress() * 5);
+            }
+        });
+        
+        mAddButton.setOnClickListener(new OnClickListener() {
+            
+            @Override
+            public void onClick(View v) {
+                mSlider.setProgress(mSlider.getProgress() + 1);
+                
+            }
+        });
+        
+        mSubtractButton.setOnClickListener(new OnClickListener() {
+            
+            @Override
+            public void onClick(View v) {
+                mSlider.setProgress(mSlider.getProgress() - 1);
+                
             }
         });
     }

@@ -24,4 +24,48 @@
         android:text="0"
         android:textSize="40sp" />
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|left"
+        android:layout_margin="15dp"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/reduceBy5Button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/seek_arc_control_selector" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="5dp"
+            android:text="-5"
+            android:textSize="32sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:layout_margin="15dp"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="5dp"
+            android:text="+5"
+            android:textSize="32sp" />
+
+        <Button
+            android:id="@+id/increaseBy5Button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/seek_arc_control_selector" />
+    </LinearLayout>
+
 </FrameLayout>

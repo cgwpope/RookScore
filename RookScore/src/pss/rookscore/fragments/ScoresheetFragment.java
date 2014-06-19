@@ -8,8 +8,8 @@ import java.util.Map;
 import pss.rookscore.GameStateModel;
 import pss.rookscore.GameStateModel.RoundResult;
 import pss.rookscore.R;
+import pss.rookscore.fragments.views.RoundSummary;
 import pss.rookscore.fragments.views.ScoresheetBodyView;
-import pss.rookscore.fragments.views.ScoresheetBodyView.RoundSummary;
 import pss.rookscore.fragments.views.ScoresheetHeaderView;
 import android.app.Fragment;
 import android.os.Bundle;
@@ -128,6 +128,8 @@ public class ScoresheetFragment extends Fragment {
     public void scoreUpdated() {
         List<RoundSummary> computeRoundScores = computeRoundScores(mGameStateModel);
         ((ScoresheetBodyView)getView().findViewById(R.id.scoresheetBodyView)).setRoundScores(computeRoundScores);
+        ((ScoresheetHeaderView)getView().findViewById(R.id.scoresheetHeaderView)).setRoundScores(computeRoundScores);
+
     }
     
     

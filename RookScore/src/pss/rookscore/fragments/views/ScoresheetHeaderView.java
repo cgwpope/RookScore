@@ -64,16 +64,22 @@ public class ScoresheetHeaderView extends View {
                     textToDraw = playerName;
                 }
                 
-                float textWidth = mPaint.measureText(textToDraw);
+                float playerNameWidth = mPaint.measureText(textToDraw);
+                canvas.drawText(textToDraw, ViewUtilities.computeCentredStringStart(i * widthPerPlayer, widthPerPlayer, playerNameWidth), mPaint.getTextSize(), mPaint);
+
+                textToDraw = "" + (mRoundScores.size() > 0 ? mRoundScores.get(mRoundScores.size() - 1).getRoundScores().get(playerName) : 0);
                 
-                canvas.drawText(textToDraw, ViewUtilities.computeCentredStringStart(i * widthPerPlayer, widthPerPlayer, textWidth), mPaint.getTextSize(), mPaint);
+                //now draw the player's score
+                float scoreWidth = mPaint.measureText(textToDraw);
+                canvas.drawText(textToDraw, ViewUtilities.computeCentredStringStart(i * widthPerPlayer, widthPerPlayer, scoreWidth), mPaint.getTextSize() * 2, mPaint);
+            
             }
         }
     }
     
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        setMeasuredDimension(View.MeasureSpec.getSize(widthMeasureSpec), (int)ViewUtilities.computeRowHeight(mPaint, getContext()));
+        setMeasuredDimension(View.MeasureSpec.getSize(widthMeasureSpec), (int)ViewUtilities.computeRowHeight(mPaint, getContext()) * 2);
     }
     
     public void setGameStateModel(GameStateModel model){

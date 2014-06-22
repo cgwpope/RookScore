@@ -5,25 +5,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pss.rookscore.R;
-import pss.rookscore.fragments.BidFragment.BidSelectionListener;
-import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 
 public class PlayerListFragment extends Fragment {
 
@@ -44,15 +41,20 @@ public class PlayerListFragment extends Fragment {
     private ArrayAdapter<String> mListAdapter;
     private List<String> mPlayerList = new ArrayList<String>();
 
+    private GestureDetector mGestureDetector;
+
+    private ListView mPlayerListView;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.player_list_fragment, container, false);
 
         mListAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1);
 
-        ((ListView) v.findViewById(R.id.playerList)).setAdapter(mListAdapter);
+        mPlayerListView = (ListView) v.findViewById(R.id.playerList);
+        mPlayerListView.setAdapter(mListAdapter);
 
-        ((ListView) v.findViewById(R.id.playerList))
+        mPlayerListView
                 .setOnItemClickListener(new OnItemClickListener() {
 
                     @Override
@@ -61,21 +63,71 @@ public class PlayerListFragment extends Fragment {
                     }
                 });
 
-        ((ListView) v.findViewById(R.id.playerList))
-                .setOnItemLongClickListener(new OnItemLongClickListener() {
+//        mPlayerListView
+//                .setOnItemLongClickListener(new OnItemLongClickListener() {
+//
+//                    @Override
+//                    public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2,long arg3) {
+//                        final String playerName = mListAdapter.getItem(arg2);
+//                        ((PlayerSelectionListener) getActivity()).playerRemoved(playerName);
+//                        return true;
+//                    }
+//                });
 
-                    @Override
-                    public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2,long arg3) {
+        
+        
+        mGestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                
+                //A few conditions to check
+                // - Was fling restricted to a single list item's boundaries?
+                //- Was flight from left to righy?
+                
+                if(e1.getX() < e2.getX()){
+                    
+                    
+                    for(int i = mPlayerListView.getFirstVisiblePosition(); i <= mPlayerListView.getLastVisiblePosition(); i++){
+                        View v = mPlayerListView.getChildAt(i);
+                        
+                        
+                        float topLeftY = v.getY();
+                        float bottomRightY = v.getY() + v.getHeight();
+                        
+                        if(e1.getY() >= topLeftY){
+                            
+                            if(e2.getY() <= bottomRightY){
+                                //ok, we've found the list item that the fling was on. Translate to a model item and remove it
+                                String itemAtPosition = (String)mPlayerListView.getItemAtPosition(i);
+                                ((PlayerSelectionListener) getActivity()).playerRemoved(itemAtPosition);
+                                return true;
+                            } 
+                        } else {
+                            //the fling crossed across two list items. Ignore. We don't need to look for any more list items
+                            break;
 
-                        final String playerName = mListAdapter.getItem(arg2);
-                        ((PlayerSelectionListener) getActivity()).playerRemoved(playerName);
-
-                        return true;
+                        }
                     }
-                });
-
+                }
+                
+                
+                return super.onFling(e1, e2, velocityX, velocityY);
+            }
+        });
+        
+        mPlayerListView.setOnTouchListener(new OnTouchListener() {
+            
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return mGestureDetector.onTouchEvent(event);
+            }
+        });
+        
+        
         return v;
     }
+    
+    
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -113,6 +165,38 @@ public class PlayerListFragment extends Fragment {
 
         
         populateList();
+    }
+
+    public void removePlayer(final String playerName) {
+        int position = mListAdapter.getPosition(playerName);
+        View v = mPlayerListView.getChildAt(position);
+
+        Animation listItemSlideAnimation = AnimationUtils.loadAnimation(getActivity(), R.animator.list_item_slide_anim);
+        v.startAnimation(listItemSlideAnimation);
+        listItemSlideAnimation.setDuration(500);
+        listItemSlideAnimation.setAnimationListener(new AnimationListener() {
+            
+            @Override
+            public void onAnimationStart(Animation arg0) {
+            }
+            
+            @Override
+            public void onAnimationRepeat(Animation arg0) {
+            }
+            
+            @Override
+            public void onAnimationEnd(Animation arg0) {
+                mListAdapter.remove(playerName);
+                mPlayerListView.clearChoices();
+            }
+        });
+        
+    }
+
+
+
+    public void addPlayer(String newPlayer) {
+        mListAdapter.add(newPlayer);
     }
 
 

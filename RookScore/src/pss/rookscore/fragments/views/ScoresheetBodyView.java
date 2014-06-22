@@ -50,8 +50,8 @@ public class ScoresheetBodyView extends View {
             
             StringBuilder roundSummaryText = new StringBuilder();
             
-            int row = 0;
             for (RoundSummary summary : mRoundSummaries) {
+                canvas.translate(0, ViewUtilities.computeRowHeight(mTextPaint, getContext()));
                 
                 //display the score per player, and then the round summary
                 for(int i = 0; i < playerNames.size(); i++){
@@ -66,7 +66,7 @@ public class ScoresheetBodyView extends View {
 
                     float leftmost = i * widthPerPlayer;
                     
-                    canvas.drawText(textToDraw, ViewUtilities.computeCentredStringStart(leftmost, widthPerPlayer, textWidth), ViewUtilities.computeRowHeight(mTextPaint, getContext()) * (row + 1) - ViewUtilities.scaleText(getContext(), 4), mTextPaint);
+                    canvas.drawText(textToDraw, ViewUtilities.computeCentredStringStart(leftmost, widthPerPlayer, textWidth),  - ViewUtilities.scaleText(getContext(), 4), mTextPaint);
                 }
                 
                 
@@ -75,43 +75,22 @@ public class ScoresheetBodyView extends View {
                 ViewUtilities.summarizeRoundResult(roundSummaryText, summary, playerNames);
                 
                 
+                float summaryX = getWidth() - roundSummaryWidth;
                 
-                float textWidth = mTextPaint.measureText(roundSummaryText.toString());
-                float summaryX = ViewUtilities.computeCentredStringStart(getWidth() - roundSummaryWidth, roundSummaryWidth, textWidth);
-                
-                
-                
-                canvas.drawText(roundSummaryText.toString(), summaryX,  ViewUtilities.computeRowHeight(mTextPaint, getContext())  * (row + 1) - ViewUtilities.scaleText(getContext(), 4) , mTextPaint);
+                canvas.drawText(roundSummaryText.toString(), summaryX,  - ViewUtilities.scaleText(getContext(), 4) , mTextPaint);
                 
                 
                 //draw a faint gray line to separate rows
-                canvas.drawLine(
-                        0, 
-                        ViewUtilities.computeRowHeight(mTextPaint, getContext()) * (row + 1), 
-                        getWidth(), 
-                        ViewUtilities.computeRowHeight(mTextPaint, getContext()) * (row + 1), mLinePaint);
-                
-                
-                
-                row++;
+                canvas.drawLine(0,0,getWidth(),0, mLinePaint);
             }
         }
     }
-
-
-
-
 
 
 	@Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         setMeasuredDimension(View.MeasureSpec.getSize(widthMeasureSpec), (int)ViewUtilities.computeRowHeight(mTextPaint, getContext())* mRoundSummaries.size() + 5);
     }
-    
-    
-
-    
-
 
 
 

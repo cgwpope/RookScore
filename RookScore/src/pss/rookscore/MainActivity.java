@@ -80,7 +80,7 @@ public class MainActivity extends Activity implements PlayerSelectionListener  {
         if(item.getItemId() == R.id.actionBarStartGameAction){
             startGame();
             return true;
-        } else if(item.getItemId() == R.id.actionBarAddPlayerAction){
+        } else if(item.getItemId() == R.id.scoreDecreaseButtonContainer){
             addPlayer();
             return true;
         }
@@ -117,12 +117,16 @@ public class MainActivity extends Activity implements PlayerSelectionListener  {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == GET_PLAYER_TO_ADD && resultCode == RESULT_OK){
             String newPlayer = data.getStringExtra(AddPlayerActivity.ADD_PLAYER_RESULT_KEY);
-            if(!mPlayerList.contains(newPlayer)){
-                mPlayerList.add(newPlayer);
-                updateGameSetup();
-            } else {
-                Toast.makeText(this, newPlayer + " is already in the game.", Toast.LENGTH_SHORT).show();
-            }
+            addPlayer(newPlayer);
+        }
+    }
+
+    private void addPlayer(String newPlayer) {
+        if(!mPlayerList.contains(newPlayer)){
+            mPlayerList.add(newPlayer);
+            ((PlayerListFragment)getFragmentManager().findFragmentById(R.id.playerListFragment)).addPlayer(newPlayer);
+        } else {
+            Toast.makeText(this, newPlayer + " is already in the game.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -133,16 +137,13 @@ public class MainActivity extends Activity implements PlayerSelectionListener  {
 
     @Override
     public void playerSelected(String playerName) {
-        mPlayerList.add(playerName);
-        updateGameSetup();
-
-        
+        addPlayer(playerName); 
     }
 
     @Override
     public void playerRemoved(String playerName) {
         mPlayerList.remove(playerName);
-        updateGameSetup();
+        ((PlayerListFragment)getFragmentManager().findFragmentById(R.id.playerListFragment)).removePlayer(playerName);
     }
 
 }

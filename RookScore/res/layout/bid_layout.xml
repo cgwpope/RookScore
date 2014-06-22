@@ -25,11 +25,15 @@
         android:textSize="40sp" />
 
     <LinearLayout
+        android:id="@+id/scoreIncreaseButtonContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|left"
-        android:layout_margin="15dp"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="50dp"
+        android:paddingTop="40dp" >
 
         <Button
             android:id="@+id/reduceBy5Button"
@@ -47,11 +51,15 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/scoreDecreaseButtonContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="right|bottom"
-        android:layout_margin="15dp"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:paddingBottom="10dp"
+        android:paddingLeft="50dp"
+        android:paddingRight="10dp"
+        android:paddingTop="40dp" >
 
         <TextView
             android:layout_width="wrap_content"

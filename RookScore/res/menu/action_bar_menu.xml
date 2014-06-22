@@ -6,7 +6,7 @@
         android:showAsAction="ifRoom"
         />
     <item 
-        android:id="@+id/actionBarAddPlayerAction"
+        android:id="@+id/scoreDecreaseButtonContainer"
         android:title="+" 
         android:showAsAction="ifRoom"
         />

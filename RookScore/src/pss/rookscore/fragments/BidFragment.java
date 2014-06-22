@@ -6,8 +6,10 @@ import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
@@ -51,6 +53,19 @@ public class BidFragment extends Fragment {
         mAddButton = (Button)getView().findViewById(R.id.increaseBy5Button);
         mSubtractButton = (Button)getView().findViewById(R.id.reduceBy5Button);
         
+        
+        ;
+        OnTouchListener deadspotTouchListener = new OnTouchListener() {
+            
+            @Override
+            public boolean onTouch(View arg0, MotionEvent arg1) {
+                return true;
+            }
+        };
+        ((ViewGroup)getView().findViewById(R.id.scoreIncreaseButtonContainer)).setOnTouchListener(deadspotTouchListener);
+        ((ViewGroup)getView().findViewById(R.id.scoreDecreaseButtonContainer)).setOnTouchListener(deadspotTouchListener);
+        
+
         
         
 		mSlider.setProgress(startingBid / 5);

@@ -1,7 +1,9 @@
 
 package pss.rookscore.fragments.views;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import android.content.Context;
 import android.graphics.Paint;
@@ -46,14 +48,25 @@ public class ViewUtilities {
                 .append(summary.getRoundResult().getBid())
                 .append(')');
 
-        if (summary.getRoundResult().getCaller().equals(summary.getRoundResult().getParter())) {
+        
+        //check for going alone
+        Set<String> offense = new HashSet<String>();
+        offense.add(summary.getRoundResult().getCaller());
+        for (String partner : summary.getRoundResult().getParters()) {
+            offense.add(partner);
+        }
+        
+        if (offense.size() == 1) {
             roundSummaryText.append(" -- ");
         } else {
-            roundSummaryText
-                    .append(',')
-                    .append(ViewUtilities.shorterName(players, summary.getRoundResult()
-                            .getParter()))
-                    .append(" - ");
+            offense.remove(summary.getRoundResult().getCaller());
+            for (String partner : offense) {
+                roundSummaryText
+                .append(',')
+                .append(ViewUtilities.shorterName(players, partner));
+                
+            }
+            roundSummaryText.append(" - ");
         }
 
         roundSummaryText.append(summary.getRoundResult().getMade());

@@ -2,8 +2,10 @@ package pss.rookscore.fragments;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import pss.rookscore.GameStateModel;
 import pss.rookscore.GameStateModel.RoundResult;
@@ -79,13 +81,14 @@ public class ScoresheetFragment extends Fragment {
          */
         
         Map<String, Integer> newScores = new HashMap<String, Integer>();
-        List<String> callers = new ArrayList<String>();
-        List<String> defenders = new ArrayList<String>();
+        Set<String> callers = new HashSet<String>();
+        Set<String> defenders = new HashSet<String>();
         callers.add(roundResult.getCaller());
-        if(!roundResult.getCaller().equals(roundResult.getParter())){
-            //didn't go alone
-            callers.add(roundResult.getParter());
+        
+        for (String partner : roundResult.getParters()) {
+            callers.add(partner);
         }
+        
         
         for (String player : players) {
             if(!callers.contains(player)){

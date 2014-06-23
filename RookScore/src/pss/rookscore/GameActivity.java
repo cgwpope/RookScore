@@ -111,7 +111,7 @@ public class GameActivity extends Activity {
             //build up a new round from the intend
             RoundResult rr = new RoundResult(
                     data.getStringExtra(PlayRoundActivity.CALLER_KEY), 
-                    data.getStringExtra(PlayRoundActivity.PARTNER_KEY), 
+                    data.getStringArrayExtra(PlayRoundActivity.PARTNER_KEY), 
                     data.getIntExtra(PlayRoundActivity.BID_KEY, 0), 
                     data.getIntExtra(PlayRoundActivity.MADE_KEY,0));
             mGameModel.getRounds().add(rr);

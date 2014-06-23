@@ -18,16 +18,16 @@ public class GameStateModel implements Serializable {
         private static final long serialVersionUID = 1L;
         
         private String mCaller;
-        private String mParter;
+        private String[] mParters;
         private int mBid;
         private int mMade;
         
         
         
-        public RoundResult(String caller, String parter, int bid, int made) {
+        public RoundResult(String caller, String[] partners, int bid, int made) {
             super();
             mCaller = caller;
-            mParter = parter;
+            mParters = partners;
             mBid = bid;
             mMade = made;
         }
@@ -37,11 +37,11 @@ public class GameStateModel implements Serializable {
         public void setCaller(String caller) {
             mCaller = caller;
         }
-        public String getParter() {
-            return mParter;
+        public String[] getParters() {
+            return mParters;
         }
-        public void setParter(String parter) {
-            mParter = parter;
+        public void setParter(String[] parter) {
+            mParters = parter;
         }
         public int getBid() {
             return mBid;

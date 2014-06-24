@@ -3,7 +3,8 @@ package pss.rookscore.fragments.views;
 import java.util.ArrayList;
 import java.util.List;
 
-import pss.rookscore.GameStateModel;
+import pss.rookscore.model.GameStateModel;
+import pss.rookscore.model.RoundSummary;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -18,6 +19,7 @@ public class ScoresheetBodyView extends View {
     private List<RoundSummary> mRoundSummaries = new ArrayList<RoundSummary>();
 	private GameStateModel mModel;
     private Paint mLinePaint;
+    private boolean mUseFullWidth = true;
     
     public ScoresheetBodyView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -61,7 +63,7 @@ public class ScoresheetBodyView extends View {
                     
                     //TODO: Special case for numChars == 0: reduce font size?
 
-                    String textToDraw = "" + summary.getRoundScores().get(playerName);
+                    String textToDraw = "" + summary.getRoundCumulativeScores().get(playerName);
                     float textWidth = mTextPaint.measureText(textToDraw);
 
                     float leftmost = i * widthPerPlayer;
@@ -72,7 +74,7 @@ public class ScoresheetBodyView extends View {
                 
                 roundSummaryText.setLength(0);
                 
-                ViewUtilities.summarizeRoundResult(roundSummaryText, summary, playerNames);
+                ViewUtilities.summarizeRoundResult(roundSummaryText, summary.getRoundResult(), playerNames);
                 
                 
                 float summaryX = getWidth() - roundSummaryWidth;
@@ -96,17 +98,21 @@ public class ScoresheetBodyView extends View {
 
 	public void setGameStateModel(GameStateModel model) {
 		mModel = model;
-		requestLayout();
+		scoreUpdated();
 	}
 
 
-	public void setRoundScores(List<RoundSummary> roundSummaries) {
-		mRoundSummaries = roundSummaries;
-		requestLayout();
-	}
+
+
+
+    public void scoreUpdated() {
+        mRoundSummaries = mModel.computeRoundScores();
+        requestLayout();
+    }
     
 
     
+
 
     
     

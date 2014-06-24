@@ -1,8 +1,8 @@
-package pss.rookscore.fragments.views;
+package pss.rookscore.model;
 
 import java.util.Map;
 
-import pss.rookscore.GameStateModel.RoundResult;
+import pss.rookscore.model.GameStateModel.RoundResult;
 
 public class RoundSummary {
     private final RoundResult mRoundResult;
@@ -18,7 +18,7 @@ public class RoundSummary {
         return mRoundResult;
     }
     
-    public Map<String, Integer> getRoundScores() {
+    public Map<String, Integer> getRoundCumulativeScores() {
         return mRoundScores;
     }
 }

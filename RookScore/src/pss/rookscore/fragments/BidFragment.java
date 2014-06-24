@@ -1,6 +1,7 @@
 package pss.rookscore.fragments;
 
 import pss.rookscore.R;
+import pss.rookscore.ruleset.RookRuleSet;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.text.Spannable;
@@ -32,11 +33,18 @@ public class BidFragment extends Fragment {
     private SeekArc mSlider;
     private Button mAddButton;
     private Button mSubtractButton;
+    private RookRuleSet mRuleset;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.bid_layout, container, false);
     }
+    
+    
+    public void setRuleSet(RookRuleSet rrs){
+        mRuleset = rrs;
+    }
+    
     
     @Override
     public void onResume() {
@@ -69,7 +77,7 @@ public class BidFragment extends Fragment {
         
         
 		mSlider.setProgress(startingBid / 5);
-		mLabel.setText(getLabelText(mSlider.getProgress() * 5, startingBid));
+		mLabel.setText(getLabelText(mSlider.getProgress() * 5, startingBid, mRuleset));
 
         mSlider.setOnSeekArcChangeListener(new OnSeekArcChangeListener() {
             @Override
@@ -84,7 +92,7 @@ public class BidFragment extends Fragment {
             
             @Override
             public void onProgressChanged(SeekArc seekArc, int progress, boolean fromUser) {
-                mLabel.setText(getLabelText(progress * 5, startingBid));
+                mLabel.setText(getLabelText(progress * 5, startingBid, mRuleset));
             }
         });
         
@@ -116,12 +124,13 @@ public class BidFragment extends Fragment {
     
     /**
      * In the default view, we don't care about the starting bid, just what is selected
+     * @param ruleset 
      * 
      * @param progress
      * @param targetProgress
      * @return
      */
-	protected Spannable getLabelText(int bid, int startingBid) {
+	protected Spannable getLabelText(int bid, int startingBid, RookRuleSet ruleset) {
 		return new SpannableString("" + bid);
 	}
 }

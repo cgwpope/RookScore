@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+	<item 
+	    android:id="@+id/bidDetailsHolderMenuItem"
+	    android:title="Bid"
+	    android:showAsAction="always"
+	    android:actionLayout="@layout/play_round_action_bar"
+	    
+	    />  
+</menu>

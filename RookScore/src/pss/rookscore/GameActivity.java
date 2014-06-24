@@ -4,8 +4,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
-import pss.rookscore.GameStateModel.RoundResult;
 import pss.rookscore.fragments.ScoresheetFragment;
+import pss.rookscore.model.GameStateModel;
+import pss.rookscore.model.GameStateModel.RoundResult;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -84,7 +85,6 @@ public class GameActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        
         ScoresheetFragment scoresheetFragment = (ScoresheetFragment)getFragmentManager().findFragmentById(R.id.scoresheetFragment);
         scoresheetFragment.setGameStateModel(mGameModel);
     }
@@ -101,7 +101,7 @@ public class GameActivity extends Activity {
     
     private void startNewRound() {
         Intent i = new Intent(this, PlayRoundActivity.class);
-        i.putStringArrayListExtra(PlayRoundActivity.PLAYER_LIST_KEY, mGameModel.getPlayers());
+        i.putExtra(PlayRoundActivity.GAME_STATE_MODEL, mGameModel);
         startActivityForResult(i, PLAY_ROUND_REQUEST);
     }
     
@@ -115,8 +115,8 @@ public class GameActivity extends Activity {
                     data.getIntExtra(PlayRoundActivity.BID_KEY, 0), 
                     data.getIntExtra(PlayRoundActivity.MADE_KEY,0));
             mGameModel.getRounds().add(rr);
-            ScoresheetFragment scoresheetFragment = (ScoresheetFragment)getFragmentManager().findFragmentById(R.id.scoresheetFragment);
-            scoresheetFragment.scoreUpdated();
+            
+            //onResume() will be called since we're just about to show view - that will cause the view to be updated with the latest model
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

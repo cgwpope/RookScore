@@ -47,7 +47,8 @@ import android.view.View;
  */
 public class SeekArc extends View {
 
-	private static final String TAG = SeekArc.class.getSimpleName();
+	private static final int TICK_LENGTH = 100;
+    private static final String TAG = SeekArc.class.getSimpleName();
 	private static int INVALID_PROGRESS_VALUE = -1;
 	// The initial rotational offset -90 means we start at 12 o'clock
 	private final int mAngleOffset = -90;
@@ -260,9 +261,14 @@ public class SeekArc extends View {
 
 	@Override
 	protected void onDraw(Canvas canvas) {		
-		if(!mClockwise) {
+		int point = canvas.save();
+	    
+	    if(!mClockwise) {
 			canvas.scale(-1, 1, mArcRect.centerX(), mArcRect.centerY() );
 		}
+		
+		
+		
 		
 		// Draw the arcs
 		final int arcStart = mStartAngle + mAngleOffset + mRotation;
@@ -271,9 +277,24 @@ public class SeekArc extends View {
 		canvas.drawArc(mArcRect, arcStart, mProgressSweep, false,
 				mProgressPaint);
 
+		
 		// Draw the thumb nail
 		canvas.translate(mTranslateX -mThumbXPos, mTranslateY -mThumbYPos);
-		mThumb.draw(canvas);		
+		mThumb.draw(canvas);
+		
+
+         canvas.restore();
+
+         canvas.translate(mArcRect.centerX(), mArcRect.centerY());
+         canvas.rotate(mStartAngle);
+
+         
+		for(int i = 0; i <= mMax; i++){
+    		//translate to centre of arc
+    		canvas.drawLine(0, -(mArcRect.height() / 2 - TICK_LENGTH / 2) , 0, -(mArcRect.height() / 2 + 100 / 2), mArcPaint);
+    		canvas.rotate(mSweepAngle/(float)mMax);
+		}
+		
 	}
 
 
@@ -528,5 +549,9 @@ public class SeekArc extends View {
 	
 	public int getProgress() {
         return mProgress;
+    }
+	
+	public void setMax(int max) {
+        mMax = max;
     }
 }

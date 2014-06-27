@@ -7,6 +7,7 @@ import java.util.Random;
 import pss.rookscore.fragments.ScoresheetFragment;
 import pss.rookscore.model.GameStateModel;
 import pss.rookscore.model.GameStateModel.RoundResult;
+import pss.rookscore.ruleset.RoundStateModel;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -109,11 +110,8 @@ public class GameActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == PLAY_ROUND_REQUEST && resultCode == RESULT_OK){
             //build up a new round from the intend
-            RoundResult rr = new RoundResult(
-                    data.getStringExtra(PlayRoundActivity.CALLER_KEY), 
-                    data.getStringArrayExtra(PlayRoundActivity.PARTNER_KEY), 
-                    data.getIntExtra(PlayRoundActivity.BID_KEY, 0), 
-                    data.getIntExtra(PlayRoundActivity.MADE_KEY,0));
+            RoundStateModel rsm = (RoundStateModel)data.getSerializableExtra(PlayRoundActivity.ROUND_STATE_MODEL);
+            RoundResult rr = new RoundResult(rsm.getCaller(), (String[]) rsm.getPartners().toArray(new String[rsm.getPartners().size()]), rsm.getBid(), rsm.getMade());
             mGameModel.getRounds().add(rr);
             
             //onResume() will be called since we're just about to show view - that will cause the view to be updated with the latest model

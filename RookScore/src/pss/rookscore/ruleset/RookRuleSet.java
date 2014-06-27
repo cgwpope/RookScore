@@ -1,6 +1,8 @@
 package pss.rookscore.ruleset;
 
-public interface RookRuleSet {
+import java.io.Serializable;
+
+public interface RookRuleSet extends Serializable {
     
     public boolean hasFixedPartners();
     public boolean allowNoPartners();

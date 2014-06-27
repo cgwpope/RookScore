@@ -43,6 +43,12 @@ public class ScoresheetBodyView extends View {
         
         ArrayList<String> playerNames = mModel.getPlayers();
         
+        
+        //sort in order of score, if possible
+        if(mRoundSummaries.size() > 0){
+            ViewUtilities.sortPlayerNames(playerNames, mModel.getRounds(), mRoundSummaries);
+        }
+        
         if(playerNames != null && playerNames.size() > 0){
             //evenly allocate width to players, draw their names
             

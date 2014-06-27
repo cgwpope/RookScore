@@ -23,8 +23,11 @@ public class MadeBidFragment extends BidFragment {
 			// Even, nothing to do
 		}
 
+		String lost = "";
+		if(rrs != null){
+		    lost = "Lost:" + (rrs.getMaximumBid() - bid);		    
+		}
 		
-		String lost = "Lost:" + (rrs.getMaximumBid() - bid);
 		
 		
 		// Now, apply some colour

@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
+	
+	    <item android:id="@+id/bidSummaryHolder" android:title="" android:titleCondensed="blah blah test"
+	        android:showAsAction="always"
+	        ></item>
+    <!-- 
 	<item 
 	    android:id="@+id/bidDetailsHolderMenuItem"
 	    android:title="Bid"
@@ -7,4 +12,5 @@
 	    android:actionLayout="@layout/play_round_action_bar"
 	    
 	    />  
+	     -->
 </menu>

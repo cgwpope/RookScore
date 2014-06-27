@@ -2,6 +2,8 @@
 package pss.rookscore.fragments.views;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import pss.rookscore.model.GameStateModel;
@@ -38,6 +40,13 @@ public class ScoresheetHeaderView extends View {
 
         if (mModel != null) {
             ArrayList<String> playerNames = mModel.getPlayers();
+            
+            
+            //sort in order of score, if possible
+            if(mRoundScores.size() > 0){
+                ViewUtilities.sortPlayerNames(playerNames, mModel.getRounds(), mRoundScores);
+            }
+            
 
             if (playerNames != null && playerNames.size() > 0) {
                 // evenly allocate width to players, draw their names
@@ -85,7 +94,7 @@ public class ScoresheetHeaderView extends View {
                                     .getRoundCumulativeScores().get(playerName) : 0);
 
                     // draw backing star if required
-                    if (playerHasWonARound(playerName)) {
+                    if (ViewUtilities.playerHasWonARound(playerName, mModel.getRounds())) {
                         int starX = (int) ViewUtilities.computeCentredStringStart(0,
                                 widthPerPlayer, (int) mPaint.getTextSize() * 2);
                         int starWidth = (int) mPaint.getTextSize() * 2;
@@ -108,15 +117,8 @@ public class ScoresheetHeaderView extends View {
 
     }
 
-    private boolean playerHasWonARound(String playerName) {
-        for (RoundResult rr : mModel.getRounds()) {
-            if (playerName.equals(rr.getCaller()) && rr.getMade() >= rr.getBid()) {
-                return true;
-            }
-        }
 
-        return false;
-    }
+
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {

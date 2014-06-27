@@ -4,15 +4,14 @@ package pss.rookscore.ruleset;
 import java.util.ArrayList;
 import java.util.List;
 
+import pss.rookscore.ruleset.RoundController.RoundState;
+
 public class RoundController {
 
-    private final RookRuleSet mRules;
-    private RoundState mState;
-    private String mCaller;
-    private int mBid;
-    private List<String> mPartners = new ArrayList<String>();
-    private int mMade;
+    private RoundStateModel mRoundState = new RoundStateModel();
+    private RookRuleSet mRules;
 
+    
     public static enum RoundState {
         COLLECT_CALLER,
         COLLECT_BID,
@@ -26,12 +25,12 @@ public class RoundController {
 
     public RoundController(RookRuleSet rules, RoundState state) {
         mRules = rules;
-        mState = state;
+        mRoundState.setState(state);
     }
 
     public RoundState nextState() {
 
-        switch (mState) {
+        switch (mRoundState.getState()) {
             case COLLECT_CALLER:
                 return RoundState.COLLECT_BID;
             case COLLECT_BID:
@@ -41,7 +40,7 @@ public class RoundController {
                     return RoundState.COLLECT_PARTNER;
                 }
             case COLLECT_PARTNER:
-                if (mPartners.size() < mRules.getNumberOfPartners()) {
+                if (mRoundState.getPartners().size() < mRules.getNumberOfPartners()) {
                     return RoundState.COLLECT_PARTNER;
                 } else {
                     return RoundState.COLLECT_MADE_BID;
@@ -51,56 +50,33 @@ public class RoundController {
         }
     }
 
-    public int getBid() {
-        return mBid;
-    }
-
-    public void setBid(int bid) {
-        mBid = bid;
-    }
-
-    public int getMade() {
-        return mMade;
-    }
-
-    public void setMade(int made) {
-        mMade = made;
-    }
-
-    public List<String> getPartners() {
-        return mPartners;
-    }
-
-    public String getCaller() {
-        return mCaller;
-    }
-
-    public void setCaller(String caller) {
-        mCaller = caller;
-    }
-
-    public RoundState getState() {
-        return mState;
+    public RookRuleSet getRules() {
+        return mRules;
     }
     
-    public void setState(RoundState state) {
-        mState = state;
+    
+    public RoundStateModel getRoundState() {
+        return mRoundState;
+    }
+    
+    public void setRoundState(RoundStateModel roundState) {
+        mRoundState = roundState;
     }
 
+    
     public void playerSelected(String playerName) {
-        if(mState == RoundState.COLLECT_CALLER){
-            mCaller = playerName;
-        } else if(mState == RoundState.COLLECT_PARTNER){
-            mPartners.add(playerName);
+        if(mRoundState.getState() == RoundState.COLLECT_CALLER){
+            mRoundState.setCaller(playerName);
+        } else if(mRoundState.getState() == RoundState.COLLECT_PARTNER){
+            mRoundState.getPartners().add(playerName);
         }
     }
 
     public void applyBid(int bid) {
-        if(mState == RoundState.COLLECT_BID){
-            mBid = bid;
-        } else if(mState == RoundState.COLLECT_MADE_BID){
-            mMade =  bid;
+        if(mRoundState.getState() == RoundState.COLLECT_BID){
+            mRoundState.setBid(bid);
+        } else if(mRoundState.getState() == RoundState.COLLECT_MADE_BID){
+            mRoundState.setMade(bid);
         }
     }
-
 }

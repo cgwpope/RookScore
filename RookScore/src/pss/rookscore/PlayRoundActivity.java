@@ -1,8 +1,11 @@
 
 package pss.rookscore;
 
+import java.util.Stack;
+
 import pss.rookscore.fragments.BidFragment;
 import pss.rookscore.fragments.BidFragment.BidSelectionListener;
+import pss.rookscore.fragments.InRoundPlayerListFragment;
 import pss.rookscore.fragments.MadeBidFragment;
 import pss.rookscore.fragments.PlayerListFragment;
 import pss.rookscore.fragments.PlayerListFragment.PlayerSelectionListener;
@@ -15,9 +18,11 @@ import pss.rookscore.ruleset.CambridgeFourPlayerRookRuleSet;
 import pss.rookscore.ruleset.CambridgeSixPlayerRookRuleSet;
 import pss.rookscore.ruleset.RoundController;
 import pss.rookscore.ruleset.RoundController.RoundState;
+import pss.rookscore.ruleset.RoundStateModel;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentManager.OnBackStackChangedListener;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
@@ -34,25 +39,37 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
      */
 
 
+
+    public static final String GAME_STATE_MODEL = PlayRoundActivity.class.getName() + " .GameModel";
+    public static final String ROUND_STATE_MODEL = PlayRoundActivity.class.getName() + " .RoundStateModel";
+    public static final String ROUND_BACK_STACK = PlayRoundActivity.class.getName() + " .RoundBackStack";
+    
+    
+    
     private RoundController mRoundController;
 
     private GameStateModel mModel;
 
-    private TextView mBidDetails;
-
-    public static final String CALLER_KEY = PlayRoundActivity.class.getName() + " .Caller";
-    public static final String PARTNER_KEY = PlayRoundActivity.class.getName() + " .Partner";
-    public static final String BID_KEY = PlayRoundActivity.class.getName() + " .Bid";
-    public static final String MADE_KEY = PlayRoundActivity.class.getName() + " .Made";
-    private static final String STATE_KEY = PlayRoundActivity.class.getName() + " .State";
-
-    public static final String GAME_STATE_MODEL = PlayRoundActivity.class.getName() + " .GameModel";
+    //annoying to have to maintain your own stack, but android backstack alone doesn't provide all that we need
+    private final Stack<RoundStateModel> mRoundStateStack = new Stack<RoundStateModel>();
+    private MenuItem mBidSummaryMenuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.play_round_activity);
-
+        
+    }
+    
+    @Override
+    public void onBackPressed() {
+        if(mRoundStateStack.size() > 0){
+            mRoundController.setRoundState(mRoundStateStack.pop());
+            updateBidView();
+        } else {
+            super.onBackPressed();    
+        }
+        
     }
 
     @Override
@@ -80,11 +97,10 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.play_round_menu, menu);
-        MenuItem item = menu.findItem(R.id.bidDetailsHolderMenuItem);
-        mBidDetails = (TextView)item.getActionView().findViewById(R.id.biddingSummaryText);
-        mBidDetails.setText("");
-        return super.onCreateOptionsMenu(menu);
+        mBidSummaryMenuItem = menu.findItem(R.id.bidSummaryHolder);
+        return true;
     }
     
     @Override
@@ -96,31 +112,18 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
     }
 
     private void serializeState(Bundle outState) {
-        outState.putString(CALLER_KEY, mRoundController.getCaller());
-        outState.putInt(BID_KEY, mRoundController.getBid());
-        String partners[] = (String[]) mRoundController.getPartners().toArray(
-                new String[mRoundController.getPartners().size()]);
-        outState.putStringArray(PARTNER_KEY, partners);
-        outState.putInt(MADE_KEY, mRoundController.getMade());
-        outState.putSerializable(STATE_KEY, mRoundController.getState());
+        outState.putSerializable(ROUND_STATE_MODEL, mRoundController.getRoundState());
+        outState.putSerializable(ROUND_BACK_STACK, mRoundStateStack);
+        outState.putSerializable(GAME_STATE_MODEL, mModel);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        mRoundController.setState((RoundState) savedInstanceState.getSerializable(STATE_KEY));
-        mRoundController.setCaller(savedInstanceState.getString(CALLER_KEY));
-        mRoundController.setBid(savedInstanceState.getInt(BID_KEY));
-
-        String partners[] = savedInstanceState.getStringArray(PARTNER_KEY);
-        for (String partner : partners) {
-            mRoundController.getPartners().add(partner);
-        }
-
-        mRoundController.setMade(savedInstanceState.getInt(MADE_KEY));
+        mRoundController.setRoundState((RoundStateModel)savedInstanceState.getSerializable(ROUND_STATE_MODEL));
         mModel = (GameStateModel)savedInstanceState.getSerializable(GAME_STATE_MODEL);
-
+        mRoundStateStack.addAll((Stack<RoundStateModel>)savedInstanceState.getSerializable(ROUND_BACK_STACK));
     }
 
     @Override
@@ -141,7 +144,7 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
         // assume single fragment for now
         Fragment newFragment;
 
-        RoundState state = mRoundController.getState();
+        RoundState state = mRoundController.getRoundState().getState();
         if(state == null){
             newFragment = null;
         } else {
@@ -166,7 +169,7 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
 
         if (newFragment != null) {
             fragmentTransaction.replace(R.id.playRoundActivityFragmentParent, newFragment);
-            fragmentTransaction.addToBackStack(null);
+            //don't add to back-stack, we are supplying custom back-stack handling
             fragmentTransaction.commit();
         } else {
             // we have everything - return to calling activity
@@ -179,17 +182,20 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
         }
         
         
-        if(mBidDetails != null){
-            //onCreateOptionsMenu is called after onResume() ?
-            mBidDetails.setText("Bid: " +    getRoundSummaryString());
-        }
+        updateBidSummary();
         
+    }
+
+    public void updateBidSummary() {
+        if(mBidSummaryMenuItem != null){
+            mBidSummaryMenuItem.setTitleCondensed("Bid: " +    getRoundSummaryString());
+        }
     }
 
     
     private String getRoundSummaryString() {
-        String partners[] = (String[]) mRoundController.getPartners().toArray(new String[mRoundController.getPartners().size()]);
-        RoundResult rr = new RoundResult(mRoundController.getCaller(),partners, mRoundController.getBid(), mRoundController.getMade());
+        String partners[] = (String[]) mRoundController.getRoundState().getPartners().toArray(new String[mRoundController.getRoundState().getPartners().size()]);
+        RoundResult rr = new RoundResult(mRoundController.getRoundState().getCaller(),partners, mRoundController.getRoundState().getBid(), mRoundController.getRoundState().getMade());
         StringBuilder sb = new StringBuilder();
         ViewUtilities.summarizeRoundResult(sb, rr, mModel.getPlayers());
         return sb.toString();
@@ -197,8 +203,9 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
     
     private Fragment prepareSelectMadeBidFragment() {
         BidFragment bidFragment = new MadeBidFragment();
+        bidFragment.setRuleSet(mRoundController.getRules());
         Bundle bundle = new Bundle();
-        bundle.putInt(BidFragment.kStartingBidArg, mRoundController.getBid());
+        bundle.putInt(BidFragment.kStartingBidArg, mRoundController.getRoundState().getBid());
         bidFragment.setArguments(bundle);
         setTitle("Points Made");
         return bidFragment;
@@ -208,7 +215,7 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
 
 
     private Fragment prepareSelectPartnerFragment() {
-        PlayerListFragment playerListFragment = new PlayerListFragment();
+        PlayerListFragment playerListFragment = new InRoundPlayerListFragment();
         playerListFragment.setPlayerList(mModel.getPlayers());
         setTitle("Select Partner");
         return playerListFragment;
@@ -217,8 +224,9 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
     private Fragment prepareSelectBidFragment() {
         BidFragment bidFragment = new BidFragment();
         Bundle bundle = new Bundle();
-        bundle.putInt(BidFragment.kStartingBidArg, 150);
+        bundle.putInt(BidFragment.kStartingBidArg, mRoundController.getRoundState().getBid() == 0 ? 150 : mRoundController.getRoundState().getBid());
         bidFragment.setArguments(bundle);
+        bidFragment.setRuleSet(mRoundController.getRules());
         setTitle("Enter Bid");
         return bidFragment;
 
@@ -226,7 +234,7 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
 
     private Fragment prepareSelectCallerFragment() {
         // start with showing the PlayerSelectionFragment
-        PlayerListFragment playerListFragment = new PlayerListFragment();
+        PlayerListFragment playerListFragment = new InRoundPlayerListFragment();
         playerListFragment.setPlayerList(mModel.getPlayers());
         setTitle("Select Caller");
         return playerListFragment;
@@ -235,7 +243,12 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
     @Override
     public void playerSelected(String playerName) {
         mRoundController.playerSelected(playerName);
-        mRoundController.setState(mRoundController.nextState());
+        
+        //store state
+        mRoundStateStack.push(new RoundStateModel(mRoundController.getRoundState()));
+        
+        //advance to next
+        mRoundController.getRoundState().setState(mRoundController.nextState());
         
         updateBidView();
     }
@@ -244,7 +257,13 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
     public void bidSelected(int bid) {
         // assume done in order - needs to be improved...
         mRoundController.applyBid(bid);
-        mRoundController.setState(mRoundController.nextState());
+        
+        //store state
+        mRoundStateStack.push(new RoundStateModel(mRoundController.getRoundState()));
+        
+        
+        //advance to next state
+        mRoundController.getRoundState().setState(mRoundController.nextState());
 
 
         updateBidView();

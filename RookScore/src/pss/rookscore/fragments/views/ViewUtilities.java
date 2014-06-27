@@ -1,6 +1,9 @@
 
 package pss.rookscore.fragments.views;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -120,5 +123,40 @@ public class ViewUtilities {
 
     static float scaleText(Context c, int size) {
         return c.getResources().getDisplayMetrics().density * size;
+    }
+
+    public static void sortPlayerNames(ArrayList<String> playerNames, final List<RoundResult> roundResults, List<RoundSummary> roundScores) {
+        final RoundSummary latestScores = roundScores.get(roundScores.size() - 1);
+        
+        Collections.sort(playerNames, new Comparator<String>(){
+
+            @Override
+            public int compare(String lhs, String rhs) {
+                boolean lhsWonRound = playerHasWonARound(lhs, roundResults);
+                boolean rhsWonRound = playerHasWonARound(rhs, roundResults);
+                
+                if(lhsWonRound == rhsWonRound){
+                    //need to compare scores
+                    return latestScores.getRoundCumulativeScores().get(rhs) - latestScores.getRoundCumulativeScores().get(lhs);
+                } else {
+                    if(lhsWonRound && !rhsWonRound){
+                        return -1;
+                    } else {
+                        return 1;
+                    }
+                }
+            }
+            
+        });        
+    }
+    
+    public static boolean playerHasWonARound(String playerName, List<RoundResult> rounds) {
+        for (RoundResult rr : rounds) {
+            if (playerName.equals(rr.getCaller()) && rr.getMade() >= rr.getBid()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

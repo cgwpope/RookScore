@@ -14,6 +14,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -114,6 +115,8 @@ public class ScoresheetHeaderView extends View {
                 }
             }
         }
+        
+
 
     }
 

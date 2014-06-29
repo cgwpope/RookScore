@@ -3,9 +3,11 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
+
+    
     <uses-sdk
-        android:minSdkVersion="16"
-        android:targetSdkVersion="18" />
+        android:minSdkVersion="L"
+        android:targetSdkVersion="L" />
 
     <application
         android:allowBackup="true"

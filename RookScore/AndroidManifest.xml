@@ -6,8 +6,9 @@
 
     
     <uses-sdk
-        android:minSdkVersion="L"
-        android:targetSdkVersion="L" />
+        
+        android:minSdkVersion="19"
+        android:targetSdkVersion="19" />
 
     <application
         android:allowBackup="true"

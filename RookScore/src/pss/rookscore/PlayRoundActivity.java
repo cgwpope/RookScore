@@ -10,6 +10,7 @@ import pss.rookscore.fragments.MadeBidFragment;
 import pss.rookscore.fragments.PlayerListFragment;
 import pss.rookscore.fragments.PlayerListFragment.PlayerSelectionListener;
 import pss.rookscore.fragments.views.ScoresheetHeaderView;
+import pss.rookscore.fragments.views.SingleLineDrawStrategy;
 import pss.rookscore.fragments.views.ViewUtilities;
 import pss.rookscore.model.GameStateModel;
 import pss.rookscore.model.GameStateModel.RoundResult;
@@ -57,8 +58,22 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.play_round_activity);
         
+        mModel = (GameStateModel)getIntent().getSerializableExtra(GAME_STATE_MODEL);
+        if(mModel == null){
+            throw new IllegalArgumentException("Game state must be provided to " + getClass());
+        }
+        
+        if(mModel.getPlayers().size() == 4){
+            mRoundController = new RoundController(new CambridgeFourPlayerRookRuleSet());    
+        } else if(mModel.getPlayers().size() == 5){
+            mRoundController = new RoundController(new CambridgeFivePlayerRookRuleSet());
+        } else if(mModel.getPlayers().size() == 6){
+            mRoundController = new RoundController(new CambridgeSixPlayerRookRuleSet());
+        }
+
+        
+        setContentView(R.layout.play_round_activity);
     }
     
     @Override
@@ -72,27 +87,6 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
         
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        
-        mModel = (GameStateModel)getIntent().getSerializableExtra(GAME_STATE_MODEL);
-        if(mModel == null){
-            throw new IllegalArgumentException("Game state must be provided to " + getClass());
-        }
-        
-
-        
-        if(mModel.getPlayers().size() == 4){
-            mRoundController = new RoundController(new CambridgeFourPlayerRookRuleSet());    
-        } else if(mModel.getPlayers().size() == 5){
-            mRoundController = new RoundController(new CambridgeFivePlayerRookRuleSet());
-        } else if(mModel.getPlayers().size() == 6){
-            mRoundController = new RoundController(new CambridgeSixPlayerRookRuleSet());
-        }
-        
-        
-    }
     
 
     @Override
@@ -125,7 +119,9 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
         mModel = (GameStateModel)savedInstanceState.getSerializable(GAME_STATE_MODEL);
         mRoundStateStack.addAll((Stack<RoundStateModel>)savedInstanceState.getSerializable(ROUND_BACK_STACK));
     }
-
+    
+    
+    
     @Override
     protected void onResume() {
         super.onResume();
@@ -197,7 +193,7 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
         String partners[] = (String[]) mRoundController.getRoundState().getPartners().toArray(new String[mRoundController.getRoundState().getPartners().size()]);
         RoundResult rr = new RoundResult(mRoundController.getRoundState().getCaller(),partners, mRoundController.getRoundState().getBid(), mRoundController.getRoundState().getMade());
         StringBuilder sb = new StringBuilder();
-        ViewUtilities.summarizeRoundResult(sb, rr, mModel.getPlayers());
+        ViewUtilities.summarizeCompleteRoundResult(sb, rr, mModel.getPlayers());
         return sb.toString();
     }
     

@@ -15,9 +15,9 @@ import android.graphics.Paint;
 
 public class ViewUtilities {
 
+    static final char X_CHAR = '\u2717';
+    static final char CHECKMARK_CHAR = '\u2713';
     static final int TEXT_SIZE = 16;
-
-    static final int DEFAULT_ROUND_SUMMARY_WIDTH = 100;
 
     static String shorterName(List<String> allNames, String name) {
 
@@ -44,112 +44,35 @@ public class ViewUtilities {
         return (leftmost + fullWidth / 2) - textWidth / 2;
     }
 
-    public static void summarizeRoundResult(StringBuilder roundSummaryText, RoundResult result,
-            List<String> players) {
-
-        if (result.getCaller() != null) {
-            roundSummaryText
-                    .append(ViewUtilities.shorterName(players, result
-                            .getCaller()))
-                    .append(' ');
-
-            if (result.getBid() > 0) {
-                roundSummaryText.append('(')
-                        .append(result.getBid())
-                        .append(')');
-
-                // check for going alone
-                Set<String> offense = new HashSet<String>();
-                offense.add(result.getCaller());
-                for (String partner : result.getParters()) {
-                    offense.add(partner);
-                }
-
-                if (offense.size() == 1) {
-                    roundSummaryText.append(" -- ");
-                } else {
-                    offense.remove(result.getCaller());
-                    for (String partner : offense) {
-                        roundSummaryText
-                                .append(',')
-                                .append(ViewUtilities.shorterName(players, partner));
-
-                    }
-                    roundSummaryText.append(" - ");
-                }
-
-                // require a made bid include in summary
-                if (result.getMade() > 0) {
-
-                    roundSummaryText.append(result.getMade());
-
-                    if (result.getMade() >= result.getBid()) {
-                        roundSummaryText.append('\u2713'); // checkmark
-                    } else {
-                        roundSummaryText.append('\u2717'); // X
-                    }
-                }
-
-            }
-
-        }
-
-    }
-
-    static float computeRowHeight(Paint p, Context c) {
-        return -p.getFontMetrics().ascent + p.getFontMetrics().descent + scaleText(c, 4);
-    }
-
-    public static float computeRoundSummaryWidth(List<RoundSummary> roundSummaries, Paint paint,
-            List<String> players) {
-        float maxWidth = DEFAULT_ROUND_SUMMARY_WIDTH;
-        StringBuilder sb = new StringBuilder();
-        for (RoundSummary roundSummary : roundSummaries) {
-            summarizeRoundResult(sb, roundSummary.getRoundResult(), players);
-            float length = paint.measureText(sb.toString());
-
-            // add a bit of padding around text
-            length += 10;
-
-            if (length > maxWidth) {
-                maxWidth = length;
-            }
-            sb.setLength(0);
-        }
-
-        return maxWidth;
-
-    }
-
     static float scaleText(Context c, int size) {
         return c.getResources().getDisplayMetrics().density * size;
     }
 
     public static void sortPlayerNames(ArrayList<String> playerNames, final List<RoundResult> roundResults, List<RoundSummary> roundScores) {
         final RoundSummary latestScores = roundScores.get(roundScores.size() - 1);
-        
-        Collections.sort(playerNames, new Comparator<String>(){
+
+        Collections.sort(playerNames, new Comparator<String>() {
 
             @Override
             public int compare(String lhs, String rhs) {
                 boolean lhsWonRound = playerHasWonARound(lhs, roundResults);
                 boolean rhsWonRound = playerHasWonARound(rhs, roundResults);
-                
-                if(lhsWonRound == rhsWonRound){
-                    //need to compare scores
+
+                if (lhsWonRound == rhsWonRound) {
+                    // need to compare scores
                     return latestScores.getRoundCumulativeScores().get(rhs) - latestScores.getRoundCumulativeScores().get(lhs);
                 } else {
-                    if(lhsWonRound && !rhsWonRound){
+                    if (lhsWonRound && !rhsWonRound) {
                         return -1;
                     } else {
                         return 1;
                     }
                 }
             }
-            
-        });        
+
+        });
     }
-    
+
     public static boolean playerHasWonARound(String playerName, List<RoundResult> rounds) {
         for (RoundResult rr : rounds) {
             if (playerName.equals(rr.getCaller()) && rr.getMade() >= rr.getBid()) {
@@ -158,5 +81,71 @@ public class ViewUtilities {
         }
 
         return false;
+    }
+
+    public static void summarizeCompleteRoundResult(StringBuilder roundSummaryText, RoundResult roundResult, List<String> players) {
+        summarizeFirstLineRoundSummary(roundSummaryText, players, roundResult);
+        roundSummaryText.append(' ');
+        summarizeSecondLineRoundResult(roundSummaryText, players, roundResult);
+    }
+
+
+
+    static void summarizeSecondLineRoundResult(StringBuilder roundSummaryText, List<String> playerNames, RoundResult roundResult) {
+        if (roundResult.getCaller() != null) {
+
+            if (roundResult.getBid() > 0) {
+            
+                // check for going alone
+                Set<String> offense = new HashSet<String>();
+                offense.add(roundResult.getCaller());
+                for (String partner : roundResult.getParters()) {
+                    offense.add(partner);
+                }
+
+                if (offense.size() == 1) {
+                    roundSummaryText.append(" -- ");
+                } else {
+                    offense.remove(roundResult.getCaller());
+                    boolean firstPartner = true;
+                    for (String partner : offense) {
+                        if(!firstPartner){
+                            roundSummaryText.append(',');    
+                        } else {
+                            firstPartner = false;
+                        }
+                        roundSummaryText.append(ViewUtilities.shorterName(playerNames, partner));
+                    }
+                    roundSummaryText.append(" - ");
+                }
+
+                // require a made bid include in summary
+                if (roundResult.getMade() > 0) {
+                    roundSummaryText.append(roundResult.getMade());
+                }
+            }
+        }
+    }
+
+    static void summarizeFirstLineRoundSummary(StringBuilder roundSummaryText, List<String> playerNames, RoundResult roundResult) {
+        if (roundResult.getCaller() != null) {
+            roundSummaryText.append(ViewUtilities.shorterName(playerNames, roundResult.getCaller())).append(' ');
+
+            if (roundResult.getBid() > 0) {
+                roundSummaryText.append('(').append(roundResult.getBid()).append(')');
+            }
+        }
+    }
+
+    public static float computeLineHeight(Context context, Paint paint) {
+        return -paint.getFontMetrics().ascent + paint.getFontMetrics().descent + ViewUtilities.scaleText(context, 4);
+    }
+
+    public static Paint defaultTextPaint(Context context) {
+        Paint defaultTextPaint = new Paint(); 
+        defaultTextPaint.setTextSize(ViewUtilities.scaleText(context, ViewUtilities.TEXT_SIZE));
+        defaultTextPaint.setAntiAlias(true);
+        return defaultTextPaint;
+
     }
 }

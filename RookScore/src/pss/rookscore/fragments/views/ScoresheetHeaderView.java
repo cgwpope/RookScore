@@ -25,11 +25,11 @@ public class ScoresheetHeaderView extends View {
     private List<RoundSummary> mRoundScores;
     private Drawable mStarDrawable;
     private boolean mUseFullWidth;
+    private DrawStrategy mDrawStrategy;
 
     public ScoresheetHeaderView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mPaint = new Paint();
-        mPaint.setTextSize(ViewUtilities.scaleText(getContext(), ViewUtilities.TEXT_SIZE));
+        mPaint = new Paint(ViewUtilities.defaultTextPaint(context));
         mPaint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
 
         mStarDrawable = context.getResources().getDrawable(android.R.drawable.star_on);
@@ -52,15 +52,14 @@ public class ScoresheetHeaderView extends View {
             if (playerNames != null && playerNames.size() > 0) {
                 // evenly allocate width to players, draw their names
 
-                int roundSummaryWidth;
+                float roundSummaryWidth;
                 if (mUseFullWidth) {
                     roundSummaryWidth = 0;
                 } else {
-                    roundSummaryWidth = (int) ViewUtilities.computeRoundSummaryWidth(mRoundScores,
-                            mPaint, mModel.getPlayers());
+                    roundSummaryWidth = mDrawStrategy.computeRoundSummaryWidth(mRoundScores);
                 }
 
-                int widthAvailable = getWidth() - roundSummaryWidth;
+                float widthAvailable = getWidth() - roundSummaryWidth;
 
                 float widthPerPlayer = widthAvailable / playerNames.size();
 
@@ -87,8 +86,7 @@ public class ScoresheetHeaderView extends View {
                     }
 
                     float playerNameWidth = mPaint.measureText(textToDraw);
-                    canvas.drawText(textToDraw, ViewUtilities.computeCentredStringStart(0,
-                            widthPerPlayer, playerNameWidth), mPaint.getTextSize(), mPaint);
+                    canvas.drawText(textToDraw, ViewUtilities.computeCentredStringStart(0, widthPerPlayer, playerNameWidth), mPaint.getTextSize(), mPaint);
 
                     textToDraw = ""
                             + (mRoundScores.size() > 0 ? mRoundScores.get(mRoundScores.size() - 1)
@@ -115,28 +113,32 @@ public class ScoresheetHeaderView extends View {
                 }
             }
         }
-        
-
 
     }
 
 
-
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+    }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        setMeasuredDimension(View.MeasureSpec.getSize(widthMeasureSpec),
-                (int) ViewUtilities.computeRowHeight(mPaint, getContext()) * 2);
+        int width = View.MeasureSpec.getSize(widthMeasureSpec);
+        mDrawStrategy = DrawStrategyFactory.buildDrawStrategy(getContext(), ViewUtilities.defaultTextPaint(getContext()), mModel.getPlayers(), mModel.computeRoundScores(), width);
+        setMeasuredDimension(width, (int)ViewUtilities.computeLineHeight(getContext(), mPaint) * 2);
     }
 
     public void setGameStateModel(GameStateModel model) {
         mModel = model;
+//        mDrawStrategy = DrawStrategyFactory.buildDrawStrategy(getContext(), mPaint, mModel.getPlayers(), mModel.computeRoundScores(), getWidth());
         scoreUpdated();
     }
 
     public void scoreUpdated() {
         mRoundScores = mModel.computeRoundScores();
         invalidate();
+        requestLayout();
     }
 
     public boolean getUseFullWidth() {

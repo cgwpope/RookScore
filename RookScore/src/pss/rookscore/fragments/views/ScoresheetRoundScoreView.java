@@ -16,20 +16,18 @@ import android.view.View;
 public class ScoresheetRoundScoreView extends View {
 
     private Paint mTextPaint;
-    private Paint mLinePaint;
     private int mRound;
     private GameStateModel mModel;
     private List<RoundSummary> mRoundSummaries;
+    private DrawStrategy mDrawStrategy;
 
     public ScoresheetRoundScoreView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mTextPaint = new Paint();
-        mTextPaint.setTextSize(ViewUtilities.scaleText(getContext(), ViewUtilities.TEXT_SIZE));
+        mTextPaint = ViewUtilities.defaultTextPaint(context);
+        
+        //by default, assume a single-line draw strategy, but alter once more data available
+//        mDrawStrategy = new SingleLineDrawStrategy(context, mTextPaint, new ArrayList<String>(), new ArrayList<RoundSummary>(), getWidth());
 
-        mLinePaint = new Paint();
-        mLinePaint.setColor(Color.LTGRAY);
-        mLinePaint.setStyle(Paint.Style.STROKE);
-        mLinePaint.setStrokeWidth(2f);
     }
 
     public void setRound(int round) {
@@ -40,11 +38,11 @@ public class ScoresheetRoundScoreView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if(mModel == null){
-            //not ready to draw yet
+        if (mModel == null) {
+            // not ready to draw yet
             return;
         }
-        
+
         ArrayList<String> playerNames = mModel.getPlayers();
 
         // sort in order of score, if possible
@@ -55,61 +53,60 @@ public class ScoresheetRoundScoreView extends View {
         if (playerNames != null && playerNames.size() > 0) {
             // evenly allocate width to players, draw their names
 
-            int roundSummaryWidth = (int) ViewUtilities.computeRoundSummaryWidth(mRoundSummaries, mTextPaint, mModel.getPlayers());
-            int widthAvailable = getWidth() - roundSummaryWidth;
-            float widthPerPlayer = widthAvailable / playerNames.size();
+            float roundSummaryWidth = mDrawStrategy.computeRoundSummaryWidth(mRoundSummaries);
 
-            StringBuilder roundSummaryText = new StringBuilder();
-
-            RoundSummary summary = mRoundSummaries.get(mRound);
-
-            canvas.translate(0, ViewUtilities.computeRowHeight(mTextPaint, getContext()));
+            canvas.save();
+            
+            canvas.translate(0, ViewUtilities.computeLineHeight(getContext(), mTextPaint));
 
             // display the score per player, and then the round summary
+            RoundSummary summary = mRoundSummaries.get(mRound);
+
             for (int i = 0; i < playerNames.size(); i++) {
 
                 // use paint to clip text
                 String playerName = playerNames.get(i);
 
-                // TODO: Special case for numChars == 0: reduce font size?
-
-                String textToDraw = "" + summary.getRoundCumulativeScores().get(playerName);
-                float textWidth = mTextPaint.measureText(textToDraw);
-
-                float leftmost = i * widthPerPlayer;
-
-                canvas.drawText(textToDraw, ViewUtilities.computeCentredStringStart(leftmost,
-                        widthPerPlayer, textWidth), -ViewUtilities.scaleText(getContext(), 4),
-                        mTextPaint);
+                mDrawStrategy.drawRoundScore(getContext(), canvas, summary.getRoundCumulativeScores().get(playerName));
+                
+                //then translate to next slow
+                canvas.translate(mDrawStrategy.getWidthPerPlayer(), 0);
             }
+            
+            canvas.restore();
+            
+            //we are done painting the player scores. Move to the round summary, ready to draw texty
+            canvas.translate(getWidth() - roundSummaryWidth, ViewUtilities.computeLineHeight(getContext(), mTextPaint));
 
-            roundSummaryText.setLength(0);
-
-            ViewUtilities.summarizeRoundResult(roundSummaryText, summary.getRoundResult(),
-                    playerNames);
-
-            float summaryX = getWidth() - roundSummaryWidth;
-
-            canvas.drawText(roundSummaryText.toString(), summaryX,
-                    -ViewUtilities.scaleText(getContext(), 4), mTextPaint);
-
+            mDrawStrategy.drawRoundSummary(getContext(), canvas, summary);
         }
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        setMeasuredDimension(View.MeasureSpec.getSize(widthMeasureSpec),
-                (int) ViewUtilities.computeRowHeight(mTextPaint, getContext()) + 5);
+        int width = View.MeasureSpec.getSize(widthMeasureSpec);
+        mDrawStrategy = DrawStrategyFactory.buildDrawStrategy(getContext(), mTextPaint, mModel.getPlayers(), mModel.computeRoundScores(), width);
+        setMeasuredDimension(width, (int)mDrawStrategy.computeHeight() + 5);
+    }
+    
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
     }
 
     public void setGameStateModel(GameStateModel model) {
         mModel = model;
+//        mDrawStrategy = DrawStrategyFactory.buildDrawStrategy(getContext(), mTextPaint, mModel.getPlayers(), mModel.computeRoundScores(), getWidth());
         scoreUpdated();
     }
 
     public void scoreUpdated() {
         mRoundSummaries = mModel.computeRoundScores();
+        invalidate();
         requestLayout();
+        
     }
+    
+
 
 }

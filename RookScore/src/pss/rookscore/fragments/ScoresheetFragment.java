@@ -1,27 +1,56 @@
 
 package pss.rookscore.fragments;
 
+import java.util.ArrayList;
+
 import pss.rookscore.R;
 import pss.rookscore.fragments.views.ScoresheetHeaderView;
 import pss.rookscore.fragments.views.ScoresheetRoundScoreView;
 import pss.rookscore.model.GameStateModel;
+import pss.rookscore.model.RoundSummary;
 import android.annotation.SuppressLint;
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.MarginLayoutParams;
-import android.widget.LinearLayout;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 @SuppressLint("NewApi")
 public class ScoresheetFragment extends Fragment {
 
     private GameStateModel mGameStateModel;
+    private ArrayAdapter<RoundSummary> mListAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.scoresheet_fragment, container, false);
+        View v = inflater.inflate(R.layout.scoresheet_fragment, container, false);
+        ListView lv = (ListView)v.findViewById(R.id.roundScoreListview);
+        lv.setAdapter(mListAdapter);
+        return v;
+        
+    }
+    
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mListAdapter = new ArrayAdapter<RoundSummary>(getActivity(),R.layout.round_score_row, new ArrayList<RoundSummary>()){
+            public View getView(int position, View convertView, ViewGroup parent) {
+                LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View v = inflater.inflate(R.layout.round_score_row, parent, false);
+                ScoresheetRoundScoreView shv = (ScoresheetRoundScoreView)v.findViewById(R.id.scoresheetHeaderView);
+                shv.setGameStateModel(mGameStateModel);
+                shv.setRound(position);
+                
+                if(position == mListAdapter.getCount() - 1){
+//                    v.setElevation(10);
+                }
+                return v;
+            };
+        };
+
     }
 
     public void setGameStateModel(GameStateModel model) {
@@ -36,29 +65,8 @@ public class ScoresheetFragment extends Fragment {
 
     public void scoreUpdated() {
         ((ScoresheetHeaderView) getView().findViewById(R.id.scoresheetHeaderView)).scoreUpdated();
-
-        LinearLayout ll = ((LinearLayout) getView().findViewById(R.id.scoresheetBodyParent));
-        ll.removeAllViews();
-
-        
-        for (int i = 0; i < mGameStateModel.getRounds().size(); i++) {
-            View v = getActivity().getLayoutInflater().inflate(R.layout.round_score_row, ll, false);
-        
-            MarginLayoutParams marginParams = new MarginLayoutParams(ll.getLayoutParams());
-            marginParams.setMargins(0,10,0,0);
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(marginParams);
-            v.setLayoutParams(layoutParams);
-            ll.addView(v, layoutParams);
-//            ll.addView(v);
-            ScoresheetRoundScoreView srv = (ScoresheetRoundScoreView) v
-                    .findViewById(R.id.scoresheetHeaderView);
-            srv.setRound(i);
-            srv.setGameStateModel(mGameStateModel);
-
-            
-            
-        }
-
+        mListAdapter.clear();
+        mListAdapter.addAll(mGameStateModel.computeRoundScores());
     }
 
 }

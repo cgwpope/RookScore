@@ -22,7 +22,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         card_view:cardCornerRadius="6dp"
-        android:elevation="10dp"
 		 
         >
 

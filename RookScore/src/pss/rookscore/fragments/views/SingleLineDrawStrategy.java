@@ -8,8 +8,10 @@ import pss.rookscore.model.RoundSummary;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
+import android.graphics.Shader.TileMode;
 
 public class SingleLineDrawStrategy implements DrawStrategy {
 
@@ -32,13 +34,10 @@ public class SingleLineDrawStrategy implements DrawStrategy {
         
         mCheckMarkPaint = new Paint();
         mCheckMarkPaint.setStyle(Style.FILL);
-        mCheckMarkPaint.setColor(Color.GREEN);
-        mCheckMarkPaint.setAlpha(64);
 
+        
         mXMarkPaint = new Paint();
         mXMarkPaint.setStyle(Style.FILL);
-        mXMarkPaint.setColor(Color.RED);
-        mXMarkPaint.setAlpha(64);
 
     }
 
@@ -55,9 +54,11 @@ public class SingleLineDrawStrategy implements DrawStrategy {
         
         Paint fillPaint;
         if(roundSummary.getRoundResult().getMade() >= roundSummary.getRoundResult().getBid()){
-            fillPaint = mCheckMarkPaint;   
+            fillPaint = mCheckMarkPaint;
+            fillPaint.setShader(new LinearGradient(0, 0, computeRoundSummaryWidth(mRoundSummaries), 0, 0x00006600, 0x80006600, TileMode.MIRROR));
         } else {
             fillPaint = mXMarkPaint;
+            fillPaint.setShader(new LinearGradient(0, 0, computeRoundSummaryWidth(mRoundSummaries), 0, 0x00ff0000, 0x60ff0000, TileMode.MIRROR));
         }
         
         c.drawRect(-ViewUtilities.scaleText(context, 4), -computeHeight() - ViewUtilities.scaleText(context, 4), mTotalWidth - computeRoundSummaryWidth(mRoundSummaries) + ViewUtilities.scaleText(context, 4), ViewUtilities.scaleText(context, 4), fillPaint);

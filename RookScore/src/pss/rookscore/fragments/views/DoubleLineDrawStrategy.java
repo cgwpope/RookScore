@@ -6,8 +6,10 @@ import pss.rookscore.model.RoundSummary;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
+import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
 
 public class DoubleLineDrawStrategy implements DrawStrategy {
@@ -64,12 +66,14 @@ public class DoubleLineDrawStrategy implements DrawStrategy {
          
          Paint fillPaint;
          if(summary.getRoundResult().getMade() >= summary.getRoundResult().getBid()){
-             fillPaint = mCheckMarkPaint;   
+             fillPaint = mCheckMarkPaint;
+             fillPaint.setShader(new LinearGradient(0, 0, computeRoundSummaryWidth(mRoundSummaries), 0, 0x00006600, 0xff006600, TileMode.MIRROR));
          } else {
              fillPaint = mXMarkPaint;
+             fillPaint.setShader(new LinearGradient(0, 0, computeRoundSummaryWidth(mRoundSummaries), 0, 0x00ff0000, 0xffff0000, TileMode.MIRROR));
          }
          
-         c.drawRect(-ViewUtilities.scaleText(context, 4), -computeHeight() - ViewUtilities.scaleText(context, 4), mTotalWidth - computeRoundSummaryWidth(mRoundSummaries) + ViewUtilities.scaleText(context, 4), ViewUtilities.scaleText(context, 4), fillPaint);
+         c.drawRect(-ViewUtilities.scaleText(context, 4), -computeHeight() - ViewUtilities.scaleText(context, 4), computeRoundSummaryWidth(mRoundSummaries) + ViewUtilities.scaleText(context, 4), ViewUtilities.scaleText(context, 4), fillPaint);
          
     }
 

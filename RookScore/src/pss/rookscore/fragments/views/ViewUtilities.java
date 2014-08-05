@@ -99,7 +99,7 @@ public class ViewUtilities {
                 // check for going alone
                 Set<String> offense = new HashSet<String>();
                 offense.add(roundResult.getCaller());
-                for (String partner : roundResult.getParters()) {
+                for (String partner : roundResult.getPartners()) {
                     offense.add(partner);
                 }
 

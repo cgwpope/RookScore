@@ -15,28 +15,27 @@ public class GameStateModel implements Serializable {
     private static final int MAX_SCORE = 180;
 
     
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
 
     public static class RoundResult implements Serializable {
-        /**
-         * 
-         */
+        
         private static final long serialVersionUID = 1L;
 
         private String mCaller;
-        private String[] mParters;
+        private List<String> mParters;
         private int mBid;
         private int mMade;
 
-        public RoundResult(String caller, String[] partners, int bid, int made) {
+        public RoundResult(String caller, List<String> partners, int bid, int made) {
             super();
             mCaller = caller;
             mParters = partners;
             mBid = bid;
             mMade = made;
+        }
+        
+        public RoundResult(RoundResult toCopy){
+            this(toCopy.getCaller(), toCopy.getPartners(), toCopy.getBid(), toCopy.getMade());
         }
 
         public String getCaller() {
@@ -47,12 +46,12 @@ public class GameStateModel implements Serializable {
             mCaller = caller;
         }
 
-        public String[] getParters() {
+        public List<String> getPartners() {
             return mParters;
         }
 
-        public void setParter(String[] parter) {
-            mParters = parter;
+        public void setParters(List<String> partners) {
+            mParters = partners;
         }
 
         public int getBid() {
@@ -75,6 +74,18 @@ public class GameStateModel implements Serializable {
     private ArrayList<String> mPlayers = new ArrayList();
     private List<RoundResult> mRounds = new ArrayList<RoundResult>();
 
+    
+    public GameStateModel() {
+        
+    }
+    
+    public GameStateModel(GameStateModel toCopy){
+        mPlayers.addAll(toCopy.getPlayers());
+        for (RoundResult round : toCopy.getRounds()) {
+            mRounds.add(new RoundResult(round));
+        }
+    }
+    
     public ArrayList<String> getPlayers() {
         return mPlayers;
     }
@@ -97,11 +108,20 @@ public class GameStateModel implements Serializable {
             } else {
                 previousRoundScores = rounds.get(i - 1).getRoundCumulativeScores();
             }
+            
+            
 
-            Map<String, Integer> newRoundScore = computeRoundScore(getPlayers(),
-                    previousRoundScores, getRounds().get(i));
+            RoundResult roundResult = getRounds().get(i);
+            if(roundResult.getMade() > 0){
+                Map<String, Integer> newRoundScore = computeRoundScore(getPlayers(), previousRoundScores, roundResult);
+                rounds.add(new RoundSummary(roundResult, newRoundScore));
+            } else {
+                
+                //round bidding is not complete. Just use scores from previous round.
+                rounds.add(new RoundSummary(roundResult, previousRoundScores));
+            }
 
-            rounds.add(new RoundSummary(getRounds().get(i), newRoundScore));
+            
         }
 
         return rounds;
@@ -121,9 +141,12 @@ public class GameStateModel implements Serializable {
         Map<String, Integer> newScores = new HashMap<String, Integer>();
         Set<String> callers = new HashSet<String>();
         Set<String> defenders = new HashSet<String>();
-        callers.add(roundResult.getCaller());
         
-        for (String partner : roundResult.getParters()) {
+        if(roundResult.getCaller() != null){
+            callers.add(roundResult.getCaller());
+        }
+        
+        for (String partner : roundResult.getPartners()) {
             callers.add(partner);
         }
         

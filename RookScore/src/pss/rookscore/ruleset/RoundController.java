@@ -40,7 +40,7 @@ public class RoundController {
                     return RoundState.COLLECT_PARTNER;
                 }
             case COLLECT_PARTNER:
-                if (mRoundState.getPartners().size() < mRules.getNumberOfPartners()) {
+                if (mRoundState.getRoundResult().getPartners().size() < mRules.getNumberOfPartners()) {
                     return RoundState.COLLECT_PARTNER;
                 } else {
                     return RoundState.COLLECT_MADE_BID;
@@ -66,17 +66,17 @@ public class RoundController {
     
     public void playerSelected(String playerName) {
         if(mRoundState.getState() == RoundState.COLLECT_CALLER){
-            mRoundState.setCaller(playerName);
+            mRoundState.getRoundResult().setCaller(playerName);
         } else if(mRoundState.getState() == RoundState.COLLECT_PARTNER){
-            mRoundState.getPartners().add(playerName);
+            mRoundState.getRoundResult().getPartners().add(playerName);
         }
     }
 
     public void applyBid(int bid) {
         if(mRoundState.getState() == RoundState.COLLECT_BID){
-            mRoundState.setBid(bid);
+            mRoundState.getRoundResult().setBid(bid);
         } else if(mRoundState.getState() == RoundState.COLLECT_MADE_BID){
-            mRoundState.setMade(bid);
+            mRoundState.getRoundResult().setMade(bid);
         }
     }
 }

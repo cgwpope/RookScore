@@ -3,18 +3,28 @@ package pss.rookscore.fragments;
 
 import java.util.ArrayList;
 
+import pss.rookscore.GameActivity;
 import pss.rookscore.R;
 import pss.rookscore.fragments.views.ScoresheetHeaderView;
 import pss.rookscore.fragments.views.ScoresheetRoundScoreView;
 import pss.rookscore.model.GameStateModel;
 import pss.rookscore.model.RoundSummary;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.Interpolator;
+import android.view.animation.Animation.AnimationListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -29,10 +39,70 @@ public class ScoresheetFragment extends Fragment {
         View v = inflater.inflate(R.layout.scoresheet_fragment, container, false);
         ListView lv = (ListView)v.findViewById(R.id.roundScoreListview);
         lv.setAdapter(mListAdapter);
+        
+        lv.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                
+                promptToRemoveRound(position);
+                
+                return true;
+            }
+        });
+        
         return v;
+        
         
     }
     
+    protected void promptToRemoveRound(final int position) {
+        // prompt to delete round
+        new AlertDialog.Builder(getActivity())
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle("Remove round?")
+                .setMessage("Are you sure you want to remove this round from the game scoresheet?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        removeRound(position);
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
+
+        
+    }
+
+    protected void removeRound(final int position) {
+        
+        ListView lv = (ListView)getView().findViewById(R.id.roundScoreListview);
+        View v = lv.getChildAt(position);
+
+        Animation listItemSlideAnimation = AnimationUtils.loadAnimation(getActivity(), R.animator.list_item_slide_anim);
+        v.startAnimation(listItemSlideAnimation);
+        listItemSlideAnimation.setInterpolator(new AccelerateInterpolator());
+        listItemSlideAnimation.setDuration(500);
+        listItemSlideAnimation.setAnimationListener(new AnimationListener() {
+            
+            @Override
+            public void onAnimationStart(Animation arg0) {
+            }
+            
+            @Override
+            public void onAnimationRepeat(Animation arg0) {
+            }
+            
+            @Override
+            public void onAnimationEnd(Animation arg0) {
+                ((GameActivity)getActivity()).removeRound(position);
+                getView().invalidate();
+            }
+        });
+        
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,12 +125,17 @@ public class ScoresheetFragment extends Fragment {
 
     public void setGameStateModel(GameStateModel model) {
         // update the view
-        ((ScoresheetHeaderView) getView().findViewById(R.id.scoresheetHeaderView))
-                .setGameStateModel(model);
+        ((ScoresheetHeaderView) getView().findViewById(R.id.scoresheetHeaderView)).setGameStateModel(model);
 
         mGameStateModel = model;
 
         scoreUpdated();
+        
+        //ensure the last row is always visible when updating game state
+        ListView lv = (ListView)getView().findViewById(R.id.roundScoreListview);
+        lv.smoothScrollToPosition(mListAdapter.getCount() - 1);
+        
+        
     }
 
     public void scoreUpdated() {

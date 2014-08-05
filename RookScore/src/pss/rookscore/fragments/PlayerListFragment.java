@@ -13,6 +13,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
@@ -174,6 +175,7 @@ public class PlayerListFragment extends Fragment {
         Animation listItemSlideAnimation = AnimationUtils.loadAnimation(getActivity(), R.animator.list_item_slide_anim);
         v.startAnimation(listItemSlideAnimation);
         listItemSlideAnimation.setDuration(500);
+        listItemSlideAnimation.setInterpolator(new AccelerateInterpolator());
         listItemSlideAnimation.setAnimationListener(new AnimationListener() {
             
             @Override

@@ -3,27 +3,48 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.NFC" />
     
     <uses-sdk
-        
         android:minSdkVersion="19"
         android:targetSdkVersion="19" />
 
     <application
+        android:name="RookScoreApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" android:logo="@drawable/rook_max">
-        <activity android:name="MainActivity">
+        android:logo="@drawable/rook_max"
+        android:theme="@style/AppTheme" >
+        <activity android:name="MainActivity" >
             <intent-filter>
-                            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="AddPlayerActivity"></activity>
-        <activity android:name="GameActivity"></activity>
-        <activity android:name="PlayRoundActivity"></activity>
+        <activity android:name="AddPlayerActivity" >
+        </activity>
+        <activity android:name="GameActivity" >
+        </activity>
+        <activity android:name="PlayRoundActivity" >
+        </activity>
+        <activity android:name="ObserveGameActivity" >
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="application/vnd.pss.rookscore" />
+            </intent-filter>
+        </activity>
+
+        <service android:name="BluetoothBroadcastService" >
+        </service>
+        <service android:name="BluetoothReceiverService" >
+        </service>
     </application>
 
 </manifest>

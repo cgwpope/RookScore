@@ -3,6 +3,11 @@ package pss.rookscore;
 
 import java.util.Stack;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+
+import pss.rookscore.events.GameStateChangedEvent;
+import pss.rookscore.events.SpectatorsChangedEvent;
 import pss.rookscore.fragments.BidFragment;
 import pss.rookscore.fragments.BidFragment.BidSelectionListener;
 import pss.rookscore.fragments.InRoundPlayerListFragment;
@@ -25,6 +30,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentManager.OnBackStackChangedListener;
 import android.app.FragmentTransaction;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -54,6 +60,7 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
     //annoying to have to maintain your own stack, but android backstack alone doesn't provide all that we need
     private final Stack<RoundStateModel> mRoundStateStack = new Stack<RoundStateModel>();
     private MenuItem mBidSummaryMenuItem;
+    private EventBus mEventBus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +83,36 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
         setContentView(R.layout.play_round_activity);
     }
     
+    
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mEventBus = ((RookScoreApplication)getApplication()).getEventBus();
+        mEventBus.register(this);
+    }
+    
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mEventBus.unregister(this);
+    }
+    
+    
+    @Subscribe
+    public void handleSpectatorsChange(SpectatorsChangedEvent e){
+        //push out the current game state, including the up-to-date bidding progress
+        broadcastGameState();
+    }
+    
+    private void broadcastGameState() {
+        //each time we're through here, there has been a change to the latest round state.
+        //copy the game state model without this round, add the round in progres and broadcast
+        GameStateModel copy = new  GameStateModel(mModel);
+        copy.getRounds().add(mRoundController.getRoundState().getRoundResult());
+        mEventBus.post(new GameStateChangedEvent(copy));
+    }
+
+
     @Override
     public void onBackPressed() {
         if(mRoundStateStack.size() > 0){
@@ -163,6 +200,10 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
 
         }
 
+        
+        broadcastGameState();
+        
+        
         if (newFragment != null) {
             fragmentTransaction.replace(R.id.playRoundActivityFragmentParent, newFragment);
             //don't add to back-stack, we are supplying custom back-stack handling
@@ -190,10 +231,9 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
 
     
     private String getRoundSummaryString() {
-        String partners[] = (String[]) mRoundController.getRoundState().getPartners().toArray(new String[mRoundController.getRoundState().getPartners().size()]);
-        RoundResult rr = new RoundResult(mRoundController.getRoundState().getCaller(),partners, mRoundController.getRoundState().getBid(), mRoundController.getRoundState().getMade());
+        RoundResult roundResult = mRoundController.getRoundState().getRoundResult();
         StringBuilder sb = new StringBuilder();
-        ViewUtilities.summarizeCompleteRoundResult(sb, rr, mModel.getPlayers());
+        ViewUtilities.summarizeCompleteRoundResult(sb, roundResult, mModel.getPlayers());
         return sb.toString();
     }
     
@@ -201,7 +241,7 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
         BidFragment bidFragment = new MadeBidFragment();
         bidFragment.setRuleSet(mRoundController.getRules());
         Bundle bundle = new Bundle();
-        bundle.putInt(BidFragment.kStartingBidArg, mRoundController.getRoundState().getBid());
+        bundle.putInt(BidFragment.kStartingBidArg, mRoundController.getRoundState().getRoundResult().getBid());
         bidFragment.setArguments(bundle);
         setTitle("Points Made");
         return bidFragment;
@@ -220,7 +260,7 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
     private Fragment prepareSelectBidFragment() {
         BidFragment bidFragment = new BidFragment();
         Bundle bundle = new Bundle();
-        bundle.putInt(BidFragment.kStartingBidArg, mRoundController.getRoundState().getBid() == 0 ? 150 : mRoundController.getRoundState().getBid());
+        bundle.putInt(BidFragment.kStartingBidArg, mRoundController.getRoundState().getRoundResult().getBid() == 0 ? 150 : mRoundController.getRoundState().getRoundResult().getBid());
         bidFragment.setArguments(bundle);
         bidFragment.setRuleSet(mRoundController.getRules());
         setTitle("Enter Bid");
@@ -245,6 +285,8 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
         
         //advance to next
         mRoundController.getRoundState().setState(mRoundController.nextState());
+        
+        
         
         updateBidView();
     }

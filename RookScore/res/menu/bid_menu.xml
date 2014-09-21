@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/changeToAllPossibleBidsMenuItem" android:title="Enable All Bids" android:titleCondensed="All Bids"></item>
+    <item android:id="@+id/changeToAllPossibleBidsMenuItem" android:title="@string/bid_menu_enable_all_bids" android:titleCondensed="@string/bid_menu_enable_all_bids_short"></item>
     
 
 </menu>

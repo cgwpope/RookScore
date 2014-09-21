@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 	<item 
 	    android:id="@+id/actionBarNewRound"
-	    android:title="New Round"
+	    android:title="@string/game_activity_start_round_action"
 	    android:showAsAction="always"
 	    />    
 </menu>

@@ -10,31 +10,26 @@ public class NullDrawStrategy implements DrawStrategy {
 
     @Override
     public float computeHeight() {
-        // TODO Auto-generated method stub
         return 0;
     }
 
     @Override
     public void drawRoundSummary(Context context, Canvas c, RoundSummary summary) {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     public void drawRoundScore(Context context, Canvas c, int score) {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     public float computeRoundSummaryWidth(List<RoundSummary> roundSummaries) {
-        // TODO Auto-generated method stub
         return 0;
     }
 
     @Override
     public float getWidthPerPlayer() {
-        // TODO Auto-generated method stub
         return 0;
     }
 

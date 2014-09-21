@@ -2,7 +2,6 @@
 package pss.rookscore;
 
 import java.io.Serializable;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import pss.rookscore.events.BluetoothBroadcastStartedEvent;
@@ -17,10 +16,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
-import android.nfc.NfcAdapter.CreateNdefMessageCallback;
-import android.nfc.NfcEvent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -83,9 +79,9 @@ public class GameActivity extends Activity implements RookScoreNFCBroadcaster {
     public void onBackPressed() {
         new AlertDialog.Builder(this)
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle("End Game")
-                .setMessage("Are you sure you want to end the current game?")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+                .setTitle(R.string.game_activity_end_game_dialog_title)
+                .setMessage(R.string.game_activity_end_game_dialog_message)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener()
                 {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -94,7 +90,7 @@ public class GameActivity extends Activity implements RookScoreNFCBroadcaster {
                     }
 
                 })
-                .setNegativeButton("No", null)
+                .setNegativeButton(R.string.no, null)
                 .show();
     }
 

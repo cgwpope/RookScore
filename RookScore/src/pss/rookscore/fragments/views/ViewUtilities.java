@@ -15,8 +15,6 @@ import android.graphics.Paint;
 
 public class ViewUtilities {
 
-    static final char X_CHAR = '\u2717';
-    static final char CHECKMARK_CHAR = '\u2713';
     static final int TEXT_SIZE = 16;
 
     static String shorterName(List<String> allNames, String name) {

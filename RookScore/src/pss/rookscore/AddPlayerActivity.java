@@ -46,15 +46,16 @@ public class AddPlayerActivity extends Activity implements PlayerSelectionListen
         if (item.getItemId() == R.id.addNewPlayer) {
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
-            alert.setTitle("Add New Player");
-            alert.setMessage("Please provide the name of the new player");
+            alert.setTitle(R.string.add_player_new_player_dialog_title);
+            
+            alert.setMessage(R.string.add_player_new_player_dialog_message);
 
             // Set an EditText view to get user input
             final EditText input = new EditText(this);
             input.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS | InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
             alert.setView(input);
 
-            alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            alert.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     String name = input.getText().toString();
                     addPlayer(name);
@@ -62,7 +63,7 @@ public class AddPlayerActivity extends Activity implements PlayerSelectionListen
                 }
             });
 
-            alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            alert.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     // Canceled.
                 }
@@ -123,21 +124,14 @@ public class AddPlayerActivity extends Activity implements PlayerSelectionListen
     public void playerRemoved(final List<String> playerNames) {
         
         
-        String playerNamePrompt;
-        if(playerNames.size() == 1){
-            playerNamePrompt = playerNames.get(0);
-        } else if(playerNames.size() > 0){
-            playerNamePrompt = "these " + playerNames.size() + " players";
-        } else {
-            return;
-        }
+        String[] playerNamesArray = (String[]) playerNames.toArray(new String[playerNames.size()]);
         
         // prompt to delete
         new AlertDialog.Builder(this)
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle("Remove " + playerNamePrompt + " from default list")
-                .setMessage("Are you sure you want to remove " + playerNamePrompt + " from the default list of players?")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+                .setTitle(getResources().getQuantityString(R.plurals.add_player_remove_multi_player_dialog_title, playerNames.size(), playerNames.size(), playerNamesArray))
+                .setMessage(getResources().getQuantityString(R.plurals.add_player_remove_multi_player_dialog_message, playerNames.size(), playerNames.size(), playerNamesArray))
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener()
                 {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -155,7 +149,7 @@ public class AddPlayerActivity extends Activity implements PlayerSelectionListen
                         loadPlayerList();
                     }
                 })
-                .setNegativeButton("No", null)
+                .setNegativeButton(R.string.no, null)
                 .show();
         
 

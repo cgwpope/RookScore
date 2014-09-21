@@ -7,7 +7,6 @@ import pss.rookscore.model.GameStateModel.RoundResult;
 import pss.rookscore.model.RoundSummary;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;

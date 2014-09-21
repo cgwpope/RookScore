@@ -57,7 +57,7 @@ public class PlayerListFragment extends Fragment {
             public View getView(int position, View convertView, ViewGroup parent) {
                 View v = super.getView(position, convertView, parent);
                 if(mPlayerListView.isItemChecked(position)){
-                    v.setBackgroundColor(Color.argb(255, 49, 180, 200));
+                    v.setBackgroundColor(getActivity().getResources().getColor(R.color.rook_cyan));
                 } else {
                    v.setBackgroundColor(Color.TRANSPARENT);
                 }

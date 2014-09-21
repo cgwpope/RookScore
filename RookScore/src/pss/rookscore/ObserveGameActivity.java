@@ -20,6 +20,8 @@ import com.google.common.eventbus.Subscribe;
 
 public class ObserveGameActivity extends FragmentActivity {
 
+    private static final String GAME_STATE_KEY = ObserveGameActivity.class.getName() + ".GAME_STATE";
+    
     protected BluetoothSocket mRemoteDeviceSocket;
     private ScoresheetFragment mScoresheetFragment;
     private GameStateModel mLatestGameState;
@@ -85,11 +87,7 @@ public class ObserveGameActivity extends FragmentActivity {
                     }
                 }
             }
-        } else {
-            // cheat
-            mRemoteDeviceAddress = "CC:FA:00:33:B1:14";
-            startBluetoothReceiverService();
-        }
+        } 
     }
 
     private void startBluetoothReceiverService() {
@@ -138,14 +136,14 @@ public class ObserveGameActivity extends FragmentActivity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        mLatestGameState = (GameStateModel) savedInstanceState.getSerializable("GAME_STATE");
+        mLatestGameState = (GameStateModel) savedInstanceState.getSerializable(GAME_STATE_KEY);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if (mLatestGameState != null) {
-            outState.putSerializable("GAME_STATE", mLatestGameState);
+            outState.putSerializable(GAME_STATE_KEY, mLatestGameState);
         }
     }
 

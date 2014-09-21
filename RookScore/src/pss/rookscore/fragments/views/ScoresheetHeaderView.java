@@ -2,22 +2,14 @@
 package pss.rookscore.fragments.views;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import pss.rookscore.model.GameStateModel;
 import pss.rookscore.model.RoundSummary;
-import pss.rookscore.model.GameStateModel.RoundResult;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
-import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -29,42 +21,14 @@ public class ScoresheetHeaderView extends View {
 //    private Drawable mStarDrawable;
     private boolean mUseFullWidth;
     private DrawStrategy mDrawStrategy;
-    private Path mStarPath;
-    private Paint mStarPaint;
+    private StarPath mStarPath;
 
     public ScoresheetHeaderView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mPaint = new Paint(ViewUtilities.defaultTextPaint(context));
         mPaint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
 
-//        mStarDrawable = context.getResources().getDrawable(android.R.drawable.star_on);
-        mStarPath = new Path();
-        
-        
-        for(int i = 0; i < 5; i++){
-            mStarPath.moveTo(0f, 0f);
-            mStarPath.lineTo((float)(-1 * Math.tan(360f/5/2 * Math.PI / 180)), 1f);
-            mStarPath.lineTo(0f, 2f);
-            mStarPath.lineTo((float)(1 * Math.tan(360f/5/2 * Math.PI / 180)), 1f);
-            mStarPath.lineTo(0, 0);
-            mStarPath.close();
-            
-            Matrix m = new Matrix();
-            m.setRotate(360f/5);
-            mStarPath.transform(m);
-        }
-        
-        Matrix m = new Matrix();
-        m.setRotate(180);
-        mStarPath.transform(m);
-
-        mStarPaint = new Paint();
-        mStarPaint.setColor(Color.argb(0, 49, 180, 200));
-        mStarPaint.setAlpha(128);
-
-        
-        
-        
+        mStarPath = new StarPath(context);
     }
 
     @Override
@@ -110,12 +74,8 @@ public class ScoresheetHeaderView extends View {
                         
                         canvas.save();
                         canvas.translate(starX, starY);
-                        Path p = new Path(mStarPath);
-                        Matrix m = new Matrix();
-                        float scaleFactor = (float)(1/(1 + Math.tan(36 * Math.PI / 180))) * mPaint.getTextSize();
-                        m.setScale( scaleFactor, scaleFactor);
-                        p.transform(m);
-                        canvas.drawPath(p, mStarPaint);
+                        
+                        mStarPath.drawToCanvas(canvas, mPaint.getTextSize());
                         canvas.restore();
                         
                     }

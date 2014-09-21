@@ -10,7 +10,6 @@ import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Shader.TileMode;
-import android.graphics.Typeface;
 
 public class DoubleLineDrawStrategy implements DrawStrategy {
 

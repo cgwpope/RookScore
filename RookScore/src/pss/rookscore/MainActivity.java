@@ -21,7 +21,6 @@ import android.widget.Toast;
 public class MainActivity extends Activity implements PlayerSelectionListener {
 
     private static final int GET_PLAYER_TO_ADD = 0;
-    private static final int REQUEST_ENABLE_BT = 1;
 
     private static final String PLAYER_LIST_KEY = MainActivity.class.getName() + ".PlayerList";
 
@@ -83,17 +82,11 @@ public class MainActivity extends Activity implements PlayerSelectionListener {
         if (item.getItemId() == R.id.actionBarStartGameAction) {
             startGame();
             return true;
-        } else if (item.getItemId() == R.id.actionBarObserveGameAction) {
-            startObservingGame();
         }
+        
         return super.onOptionsItemSelected(item);
     }
 
-
-    private void startObservingGame() {
-        Intent intent = new Intent(this, ObserveGameActivity.class);
-        startActivity(intent);
-    }
 
     private void startGame() {
         Intent intent = new Intent(this, GameActivity.class);

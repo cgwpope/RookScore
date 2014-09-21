@@ -79,8 +79,7 @@ public class BidFragment extends Fragment {
         super.onResume();
 
         if (!(getActivity() instanceof BidSelectionListener)) {
-            throw new IllegalArgumentException("Parent activity must implement "
-                    + BidSelectionListener.class.getName());
+            throw new IllegalArgumentException("Parent activity must implement " + BidSelectionListener.class.getName());
         }
 
         final int startingBid = getArguments().getInt(kStartingBidArg, STARTING_BID);
@@ -110,12 +109,10 @@ public class BidFragment extends Fragment {
         mSlider.setOnSeekArcChangeListener(new OnSeekArcChangeListener() {
             @Override
             public void onStopTrackingTouch(SeekArc seekArc) {
-                // TODO Auto-generated method stub
             }
 
             @Override
             public void onStartTrackingTouch(SeekArc seekArc) {
-                // TODO Auto-generated method stub
             }
 
             @Override

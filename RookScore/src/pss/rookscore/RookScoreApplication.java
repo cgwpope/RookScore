@@ -1,9 +1,8 @@
 package pss.rookscore;
 
-import com.google.common.eventbus.EventBus;
-
 import android.app.Application;
-import android.content.Intent;
+
+import com.google.common.eventbus.EventBus;
 
 public class RookScoreApplication extends Application {
     

@@ -1,5 +1,6 @@
 package pss.rookscore.fragments;
 
+import pss.rookscore.R;
 import pss.rookscore.ruleset.RookRuleSet;
 import android.graphics.Color;
 import android.text.Spannable;
@@ -25,7 +26,7 @@ public class MadeBidFragment extends BidFragment {
 
 		String lost = "";
 		if(rrs != null){
-		    lost = "Lost:" + (rrs.getMaximumBid() - bid);		    
+		    lost =  getActivity().getResources().getString(R.string.made_bid_lost_round_by_label, (rrs.getMaximumBid() - bid));		    
 		}
 		
 		

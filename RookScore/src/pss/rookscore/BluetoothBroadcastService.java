@@ -4,6 +4,7 @@ package pss.rookscore;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -13,19 +14,89 @@ import pss.rookscore.events.BluetoothBroadcastStartedEvent;
 import pss.rookscore.events.GameStateChangedEvent;
 import pss.rookscore.events.GameOverEvent;
 import pss.rookscore.events.SpectatorsChangedEvent;
+import android.app.Activity;
+import android.app.Application.ActivityLifecycleCallbacks;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
-public class BluetoothBroadcastService extends Service {
+public class BluetoothBroadcastService extends Service  {
+
+    public static class BluetoothPairingNFCActivityLifecycleListener implements ActivityLifecycleCallbacks {
+
+        private NfcAdapter mNFCAdapter;
+        private BluetoothAdapter mBluetoothAdapter;
+
+        public BluetoothPairingNFCActivityLifecycleListener(NfcAdapter nfcAdapter, BluetoothAdapter bluetoothAdapter) {
+            mNFCAdapter = nfcAdapter;
+            mBluetoothAdapter = bluetoothAdapter;
+        }
+        
+
+
+        @Override
+        public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void onActivityStarted(Activity activity) {
+            setNFCBroadcastMessageForActivity(activity);
+                
+        }
+
+        void setNFCBroadcastMessageForActivity(Activity activity) {
+            if(activity instanceof RookScoreNFCBroadcaster){
+                mNFCAdapter.setNdefPushMessage(new NdefMessage(RookScoreNFCBroadcaster.RookScoreNFCUtils.newTextRecord(mBluetoothAdapter.getAddress())), activity);
+            } else {
+                mNFCAdapter.setNdefPushMessage(null, activity);
+            }
+        }
+
+        @Override
+        public void onActivityResumed(Activity activity) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void onActivityPaused(Activity activity) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void onActivityStopped(Activity activity) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void onActivityDestroyed(Activity activity) {
+            // TODO Auto-generated method stub
+
+        }
+
+    }
 
     public static final Serializable GAVE_OVER_MSG = RookScoreApplication.class.getName() + ".GameOverMessage";
     private BluetoothServerSocket mBluetoothServerSocket;
@@ -42,7 +113,8 @@ public class BluetoothBroadcastService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-
+        
+        
         mNetworkCommunicationThreadPool = Executors.newFixedThreadPool(1);
         
         mEventBus = ((RookScoreApplication) getApplication()).getEventBus();
@@ -52,28 +124,47 @@ public class BluetoothBroadcastService extends Service {
         // loop.
         try {
             final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-            bluetoothAdapter.isEnabled();
-            mBluetoothServerSocket = bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord("Rookscore SDP", MainActivity.ROOK_SCORE_BLUETOOTH_SERVICE_UUID);
-            mRun = true;
-            new Thread("Bluetooth listen thread") {
-                public void run() {
-                    while (mRun) {
+
+            //handle case where we're missing hardware
+            if(bluetoothAdapter != null && bluetoothAdapter.isEnabled()){
+                mBluetoothServerSocket = bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord("Rookscore SDP", MainActivity.ROOK_SCORE_BLUETOOTH_SERVICE_UUID);
+                
+                
+                NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+                
+                final BluetoothPairingNFCActivityLifecycleListener activityLifecycleCallback = (nfcAdapter == null ? null : new BluetoothPairingNFCActivityLifecycleListener(nfcAdapter, bluetoothAdapter));
+                if (activityLifecycleCallback != null) {
+                    getApplication().registerActivityLifecycleCallbacks(activityLifecycleCallback);
+                }
+                
+                
+                mRun = true;
+                new Thread("Bluetooth listen thread") {
+                    public void run() {
                         try {
-                            
-                            //now the accept loop has started, notify the app that we're good to go for Bluetooth connections
-                            mEventBus.post(new BluetoothBroadcastStartedEvent(bluetoothAdapter.getAddress()));
-                            
-                            BluetoothSocket newConnectectSocket = mBluetoothServerSocket.accept();
-                            mConnectedSockets.add(newConnectectSocket);
-                            mEventBus.post(new SpectatorsChangedEvent());
-                        } catch (IOException e) {
-                            Log.w(getClass().getName(), "Exception accepting on bluetooth server socket: " + e.getMessage());
-                            continue;
+                            while (mRun) {
+                                try {
+                                    
+                                    //now the accept loop has started, notify the app that we're good to go for Bluetooth connections
+                                    mEventBus.post(new BluetoothBroadcastStartedEvent(bluetoothAdapter.getAddress()));
+                                    
+                                    
+                                    BluetoothSocket newConnectectSocket = mBluetoothServerSocket.accept();
+                                    mConnectedSockets.add(newConnectectSocket);
+                                    mEventBus.post(new SpectatorsChangedEvent());
+                                } catch (IOException e) {
+                                    Log.w(getClass().getName(), "Exception accepting on bluetooth server socket: " + e.getMessage());
+                                    continue;
+                                }
+                            }
+                        } finally {
+                            if(activityLifecycleCallback != null){
+                                getApplication().unregisterActivityLifecycleCallbacks(activityLifecycleCallback);
+                            }
                         }
                     }
-                }
-            }.start();
-
+                }.start();
+            }
         } catch (IOException e) {
             // we are not listening anymore... oh well
             Log.w(getClass().getName(), "Stopped listening on bluetooth server socket: " + e.getMessage());
@@ -111,12 +202,14 @@ public class BluetoothBroadcastService extends Service {
         super.onDestroy();
         mEventBus.unregister(this);
         mRun = false;
-        try {
-            mBluetoothServerSocket.close();
-            for (BluetoothSocket bluetoothSocket : mConnectedSockets) {
-                bluetoothSocket.close();
+        if(mBluetoothServerSocket != null){
+            try {
+                mBluetoothServerSocket.close();
+                for (BluetoothSocket bluetoothSocket : mConnectedSockets) {
+                    bluetoothSocket.close();
+                }
+            } catch (IOException e) {
             }
-        } catch (IOException e) {
         }
     }
 
@@ -161,6 +254,11 @@ public class BluetoothBroadcastService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
+
+    
+
+    
+  
 
 
 }

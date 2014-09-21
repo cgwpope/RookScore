@@ -28,7 +28,7 @@ import android.view.MenuItem;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
-public class GameActivity extends Activity implements CreateNdefMessageCallback{
+public class GameActivity extends Activity implements RookScoreNFCBroadcaster {
 
     private static final String GAME_STATE_MODEL_KEY = GameActivity.class.getName() + ".GameStateModel";
 
@@ -40,7 +40,6 @@ public class GameActivity extends Activity implements CreateNdefMessageCallback{
 
     private EventBus mEventBus;
 
-    private String mCurrentBluetoothAdapterAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,15 +55,8 @@ public class GameActivity extends Activity implements CreateNdefMessageCallback{
     protected void onStop() {
         super.onStop();
         mEventBus.unregister(this);
-        
-        
-        NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        if (nfcAdapter != null) {
-            // Register callback
-            nfcAdapter.setNdefPushMessageCallback(null, this);
-        }
-
     }
+    
 
     // events
     @Subscribe
@@ -85,13 +77,6 @@ public class GameActivity extends Activity implements CreateNdefMessageCallback{
 
         mEventBus = ((RookScoreApplication) getApplication()).getEventBus();
         mEventBus.register(this);
-        
-        NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        if (nfcAdapter != null) {
-            // Register callback
-            nfcAdapter.setNdefPushMessageCallback(this, this);
-        }
-
     }
 
     @Override
@@ -187,24 +172,14 @@ public class GameActivity extends Activity implements CreateNdefMessageCallback{
     }
 
     
-    @Override
-    public NdefMessage createNdefMessage(NfcEvent event) {
-        if(mCurrentBluetoothAdapterAddress !=  null){
-            return new NdefMessage(newTextRecord(mCurrentBluetoothAdapterAddress));
-        } else {
-            return null;
-        }
-    }
-    
     @Subscribe
     public void handleBluetoothBroadcastStarted(BluetoothBroadcastStartedEvent e) {
-        mCurrentBluetoothAdapterAddress = e.mAddress;
+        NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        if (nfcAdapter != null) {
+            nfcAdapter.setNdefPushMessage(new NdefMessage(RookScoreNFCBroadcaster.RookScoreNFCUtils.newTextRecord(e.mAddress)), this);
+        }
     }
 
-    public static NdefRecord newTextRecord(String msg) {
-        byte[] textBytes = msg.getBytes(Charset.forName("UTF-8"));
-        return NdefRecord.createMime("application/vnd.pss.rookscore", textBytes);
-    }
 
 
 

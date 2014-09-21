@@ -37,4 +37,5 @@ public class CambridgeFivePlayerRookRuleSet implements RookRuleSet {
         return true;
     }
 
+
 }

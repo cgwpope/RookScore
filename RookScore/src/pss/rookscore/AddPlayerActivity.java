@@ -58,8 +58,7 @@ public class AddPlayerActivity extends Activity implements PlayerSelectionListen
                 public void onClick(DialogInterface dialog, int whichButton) {
                     String name = input.getText().toString();
                     addPlayer(name);
-                    playerSelected(name);
-
+                    playerSelected(Collections.singletonList(name));
                 }
             });
 
@@ -113,28 +112,42 @@ public class AddPlayerActivity extends Activity implements PlayerSelectionListen
     }
 
     @Override
-    public void playerSelected(String playerName) {
+    public void playerSelected(List<String> playerNames) {
         Intent i = new Intent();
-        i.putExtra(ADD_PLAYER_RESULT_KEY, playerName);
+        i.putStringArrayListExtra(ADD_PLAYER_RESULT_KEY, new ArrayList<String>(playerNames));
         setResult(RESULT_OK, i);
         finish();
     }
 
     @Override
-    public void playerRemoved(final String playerName) {
+    public void playerRemoved(final List<String> playerNames) {
+        
+        
+        String playerNamePrompt;
+        if(playerNames.size() == 1){
+            playerNamePrompt = playerNames.get(0);
+        } else if(playerNames.size() > 0){
+            playerNamePrompt = "these " + playerNames.size() + " players";
+        } else {
+            return;
+        }
         
         // prompt to delete
         new AlertDialog.Builder(this)
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle("Remove " + playerName + " from default list")
-                .setMessage("Are you sure you want to remove " + playerName + " from the default list of players?")
+                .setTitle("Remove " + playerNamePrompt + " from default list")
+                .setMessage("Are you sure you want to remove " + playerNamePrompt + " from the default list of players?")
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener()
                 {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                         Set<String> stringSet = prefs.getStringSet(STORED_PLAYER_NAMES_PREFS_KEY, new HashSet<String>());
-                        stringSet.remove(playerName);
+                        
+                        for (String playerName : playerNames) {
+                            stringSet.remove(playerName);    
+                        }
+                        
                         Editor prefEditor = prefs.edit();
                         prefEditor.clear();
                         prefEditor.putStringSet(STORED_PLAYER_NAMES_PREFS_KEY, stringSet);

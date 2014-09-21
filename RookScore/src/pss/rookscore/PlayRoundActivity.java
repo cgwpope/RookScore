@@ -1,10 +1,8 @@
 
 package pss.rookscore;
 
+import java.util.List;
 import java.util.Stack;
-
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 
 import pss.rookscore.events.GameStateChangedEvent;
 import pss.rookscore.events.SpectatorsChangedEvent;
@@ -15,7 +13,6 @@ import pss.rookscore.fragments.MadeBidFragment;
 import pss.rookscore.fragments.PlayerListFragment;
 import pss.rookscore.fragments.PlayerListFragment.PlayerSelectionListener;
 import pss.rookscore.fragments.views.ScoresheetHeaderView;
-import pss.rookscore.fragments.views.SingleLineDrawStrategy;
 import pss.rookscore.fragments.views.ViewUtilities;
 import pss.rookscore.model.GameStateModel;
 import pss.rookscore.model.GameStateModel.RoundResult;
@@ -28,17 +25,17 @@ import pss.rookscore.ruleset.RoundStateModel;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.FragmentManager.OnBackStackChangedListener;
 import android.app.FragmentTransaction;
-import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
+
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
 public class PlayRoundActivity extends Activity implements PlayerSelectionListener,
-        BidSelectionListener {
+        BidSelectionListener, RookScoreNFCBroadcaster {
 
     /*
      * Collect: Bidder Bid Partner Made Rely on: PlayerListFragment for player
@@ -72,7 +69,8 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
         }
         
         if(mModel.getPlayers().size() == 4){
-            mRoundController = new RoundController(new CambridgeFourPlayerRookRuleSet());    
+            mRoundController = new RoundController(new CambridgeFourPlayerRookRuleSet());
+//            mRoundController = new RoundController(new AllanFourPlayerRookRuleSet());
         } else if(mModel.getPlayers().size() == 5){
             mRoundController = new RoundController(new CambridgeFivePlayerRookRuleSet());
         } else if(mModel.getPlayers().size() == 6){
@@ -277,18 +275,21 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
     }
 
     @Override
-    public void playerSelected(String playerName) {
-        mRoundController.playerSelected(playerName);
+    public void playerSelected(List<String> playerNames) {
+        //TODO: Ensure size == 1
         
-        //store state
-        mRoundStateStack.push(new RoundStateModel(mRoundController.getRoundState()));
+        if(playerNames.size() == 1){
+            mRoundController.playerSelected(playerNames.get(0));
+            
+            //store state
+            mRoundStateStack.push(new RoundStateModel(mRoundController.getRoundState()));
+            
+            //advance to next
+            mRoundController.getRoundState().setState(mRoundController.nextState());
+            
+            updateBidView();
+        }
         
-        //advance to next
-        mRoundController.getRoundState().setState(mRoundController.nextState());
-        
-        
-        
-        updateBidView();
     }
 
     @Override
@@ -309,7 +310,7 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
     }
 
     @Override
-    public void playerRemoved(String playerName) {
+    public void playerRemoved(List<String> playerNames) {
         // meaningless
     }
     

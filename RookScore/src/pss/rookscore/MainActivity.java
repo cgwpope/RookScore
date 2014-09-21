@@ -1,23 +1,16 @@
 
 package pss.rookscore;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import pss.rookscore.fragments.PlayerListFragment;
 import pss.rookscore.fragments.PlayerListFragment.PlayerSelectionListener;
 import android.app.Activity;
-import android.app.PendingIntent;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.IntentFilter.MalformedMimeTypeException;
-import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
-import android.nfc.tech.NfcF;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -53,6 +46,13 @@ public class MainActivity extends Activity implements PlayerSelectionListener {
         // an old game
         Intent startReceiverIntent = new Intent(this, BluetoothReceiverService.class);
         stopService(startReceiverIntent);
+        
+        
+        NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        if (nfcAdapter != null) {
+            nfcAdapter.setNdefPushMessage(null, this);
+        }
+
     }
 
     @Override
@@ -118,8 +118,10 @@ public class MainActivity extends Activity implements PlayerSelectionListener {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == GET_PLAYER_TO_ADD && resultCode == RESULT_OK) {
-            String newPlayer = data.getStringExtra(AddPlayerActivity.ADD_PLAYER_RESULT_KEY);
-            addPlayer(newPlayer);
+            List<String> newPlayers = data.getStringArrayListExtra(AddPlayerActivity.ADD_PLAYER_RESULT_KEY);
+            for (String player : newPlayers) {
+                addPlayer(player);                
+            }
         }
 
     }
@@ -139,14 +141,19 @@ public class MainActivity extends Activity implements PlayerSelectionListener {
     }
 
     @Override
-    public void playerSelected(String playerName) {
-        addPlayer(playerName);
+    public void playerSelected(List<String> players) {
+        for (String playerName : players) {
+            addPlayer(playerName);    
+        }
+        
     }
 
     @Override
-    public void playerRemoved(String playerName) {
-        mPlayerList.remove(playerName);
-        ((PlayerListFragment) getFragmentManager().findFragmentById(R.id.playerListFragment)).removePlayer(playerName);
+    public void playerRemoved(List<String> players) {
+        for (String playerName : players) {
+            mPlayerList.remove(playerName);
+            ((PlayerListFragment) getFragmentManager().findFragmentById(R.id.playerListFragment)).removePlayer(playerName);
+        }
     }
 
 }

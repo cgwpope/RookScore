@@ -108,15 +108,19 @@ public class ScoresheetFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mListAdapter = new ArrayAdapter<RoundSummary>(getActivity(),R.layout.round_score_row, new ArrayList<RoundSummary>()){
             public View getView(int position, View convertView, ViewGroup parent) {
-                LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View v = inflater.inflate(R.layout.round_score_row, parent, false);
-                ScoresheetRoundScoreView shv = (ScoresheetRoundScoreView)v.findViewById(R.id.scoresheetHeaderView);
+                ScoresheetRoundScoreView shv = null;
+                View v;
+                if(convertView != null && (shv = (ScoresheetRoundScoreView)convertView.findViewById(R.id.scoresheetHeaderView)) != null){
+                    v = convertView;
+                } else {
+                    LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    v = inflater.inflate(R.layout.round_score_row, parent, false);
+                    shv = (ScoresheetRoundScoreView)v.findViewById(R.id.scoresheetHeaderView);
+                }
+
                 shv.setGameStateModel(mGameStateModel);
                 shv.setRound(position);
-                
-                if(position == mListAdapter.getCount() - 1){
-//                    v.setElevation(10);
-                }
+
                 return v;
             };
         };

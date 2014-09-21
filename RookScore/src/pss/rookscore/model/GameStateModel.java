@@ -9,10 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class GameStateModel implements Serializable {
+import pss.rookscore.ruleset.RookRuleSet;
 
-    
-    private static final int MAX_SCORE = 180;
+public class GameStateModel implements Serializable {
 
     
     private static final long serialVersionUID = 1L;
@@ -26,16 +25,19 @@ public class GameStateModel implements Serializable {
         private int mBid;
         private int mMade;
 
-        public RoundResult(String caller, List<String> partners, int bid, int made) {
+        private RookRuleSet mRuleSet;
+
+        public RoundResult(RookRuleSet ruleSet, String caller, List<String> partners, int bid, int made) {
             super();
             mCaller = caller;
             mParters = partners;
             mBid = bid;
             mMade = made;
+            mRuleSet = ruleSet;
         }
         
         public RoundResult(RoundResult toCopy){
-            this(toCopy.getCaller(), toCopy.getPartners(), toCopy.getBid(), toCopy.getMade());
+            this(toCopy.getRuleSet(), toCopy.getCaller(), toCopy.getPartners(), toCopy.getBid(), toCopy.getMade());
         }
 
         public String getCaller() {
@@ -69,9 +71,13 @@ public class GameStateModel implements Serializable {
         public void setMade(int made) {
             mMade = made;
         }
+        
+        public RookRuleSet getRuleSet() {
+            return mRuleSet;
+        }
     }
 
-    private ArrayList<String> mPlayers = new ArrayList();
+    private ArrayList<String> mPlayers = new ArrayList<String>();
     private List<RoundResult> mRounds = new ArrayList<RoundResult>();
 
     
@@ -93,6 +99,8 @@ public class GameStateModel implements Serializable {
     public List<RoundResult> getRounds() {
         return mRounds;
     }
+    
+    
 
     public List<RoundSummary> computeRoundScores() {
         List<RoundSummary> rounds = new ArrayList<RoundSummary>();
@@ -162,16 +170,16 @@ public class GameStateModel implements Serializable {
         
         if(roundResult.getMade() >= roundResult.getBid()){
             callingDelta = roundResult.getMade();
-            defendingDelta = MAX_SCORE - roundResult.getMade(); 
+            defendingDelta = roundResult.getRuleSet().getMaximumBid() - roundResult.getMade(); 
         } else {
             callingDelta = -1 * roundResult.getBid();
-            defendingDelta = MAX_SCORE - roundResult.getMade(); 
+            defendingDelta = roundResult.getRuleSet().getMaximumBid() - roundResult.getMade(); 
         }
         
         
         //alone bonus!
         if(callers.size() == 1){
-            if(callingDelta == MAX_SCORE){
+            if(callingDelta == roundResult.getRuleSet().getMaximumBid()){
                 callingDelta += (20 + (players.size() - 4) * 10);
             }
         }

@@ -2,10 +2,12 @@
 package pss.rookscore.fragments;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import pss.rookscore.R;
 import android.app.Fragment;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -19,7 +21,6 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -32,9 +33,9 @@ public class PlayerListFragment extends Fragment {
      */
 
     public static interface PlayerSelectionListener {
-        public void playerSelected(String playerName);
+        public void playerSelected(List<String> playerNames);
 
-        public void playerRemoved(String playerName);
+        public void playerRemoved(List<String> playerNames);
     }
 
     private static final String PLAYER_LIST = PlayerListFragment.class.getName() + ".PlayerList";
@@ -46,36 +47,45 @@ public class PlayerListFragment extends Fragment {
 
     private ListView mPlayerListView;
 
+    private boolean mUseMultiSelect = true;
+    
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.player_list_fragment, container, false);
 
-        mListAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1);
+        mListAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1) {
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View v = super.getView(position, convertView, parent);
+                if(mPlayerListView.isItemChecked(position)){
+                    v.setBackgroundColor(Color.argb(255, 49, 180, 200));
+                } else {
+                   v.setBackgroundColor(Color.TRANSPARENT);
+                }
+                return v;
+            };
+        };
 
         mPlayerListView = (ListView) v.findViewById(R.id.playerList);
         mPlayerListView.setAdapter(mListAdapter);
+        
 
         mPlayerListView
                 .setOnItemClickListener(new OnItemClickListener() {
 
                     @Override
                     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                        ((PlayerSelectionListener) getActivity()).playerSelected(mListAdapter.getItem(arg2));
+                        ((PlayerSelectionListener) getActivity()).playerSelected(Collections.singletonList(mListAdapter.getItem(arg2)));
                     }
                 });
 
-//        mPlayerListView
-//                .setOnItemLongClickListener(new OnItemLongClickListener() {
-//
-//                    @Override
-//                    public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2,long arg3) {
-//                        final String playerName = mListAdapter.getItem(arg2);
-//                        ((PlayerSelectionListener) getActivity()).playerRemoved(playerName);
-//                        return true;
-//                    }
-//                });
-
         
+        if(mUseMultiSelect){
+            mPlayerListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+            mPlayerListView.setMultiChoiceModeListener(new PlayerListMultiChoiceModeListener(getActivity(), mPlayerListView));
+        }
+        
+        
+
         
         mGestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
             @Override
@@ -100,7 +110,7 @@ public class PlayerListFragment extends Fragment {
                             if(e2.getY() <= bottomRightY){
                                 //ok, we've found the list item that the fling was on. Translate to a model item and remove it
                                 String itemAtPosition = (String)mPlayerListView.getItemAtPosition(i);
-                                ((PlayerSelectionListener) getActivity()).playerRemoved(itemAtPosition);
+                                ((PlayerSelectionListener) getActivity()).playerRemoved(Collections.singletonList(itemAtPosition));
                                 return true;
                             } 
                         } else {
@@ -200,6 +210,11 @@ public class PlayerListFragment extends Fragment {
     public void addPlayer(String newPlayer) {
         mListAdapter.add(newPlayer);
     }
+    
+    protected void setUseMultiSelect(boolean b) {
+        mUseMultiSelect = b;
+    }
+
 
 
 

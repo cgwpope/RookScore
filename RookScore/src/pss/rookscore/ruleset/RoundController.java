@@ -8,7 +8,7 @@ import pss.rookscore.ruleset.RoundController.RoundState;
 
 public class RoundController {
 
-    private RoundStateModel mRoundState = new RoundStateModel();
+    private RoundStateModel mRoundState;
     private RookRuleSet mRules;
 
     
@@ -25,6 +25,7 @@ public class RoundController {
 
     public RoundController(RookRuleSet rules, RoundState state) {
         mRules = rules;
+        mRoundState = new RoundStateModel(mRules);
         mRoundState.setState(state);
     }
 

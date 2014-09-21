@@ -11,7 +11,10 @@ import pss.rookscore.model.RoundSummary;
 import pss.rookscore.model.GameStateModel.RoundResult;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.CardView;
@@ -23,16 +26,45 @@ public class ScoresheetHeaderView extends View {
     private final Paint mPaint;
     private GameStateModel mModel;
     private List<RoundSummary> mRoundScores;
-    private Drawable mStarDrawable;
+//    private Drawable mStarDrawable;
     private boolean mUseFullWidth;
     private DrawStrategy mDrawStrategy;
+    private Path mStarPath;
+    private Paint mStarPaint;
 
     public ScoresheetHeaderView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mPaint = new Paint(ViewUtilities.defaultTextPaint(context));
         mPaint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
 
-        mStarDrawable = context.getResources().getDrawable(android.R.drawable.star_on);
+//        mStarDrawable = context.getResources().getDrawable(android.R.drawable.star_on);
+        mStarPath = new Path();
+        
+        
+        for(int i = 0; i < 5; i++){
+            mStarPath.moveTo(0f, 0f);
+            mStarPath.lineTo((float)(-1 * Math.tan(360f/5/2 * Math.PI / 180)), 1f);
+            mStarPath.lineTo(0f, 2f);
+            mStarPath.lineTo((float)(1 * Math.tan(360f/5/2 * Math.PI / 180)), 1f);
+            mStarPath.lineTo(0, 0);
+            mStarPath.close();
+            
+            Matrix m = new Matrix();
+            m.setRotate(360f/5);
+            mStarPath.transform(m);
+        }
+        
+        Matrix m = new Matrix();
+        m.setRotate(180);
+        mStarPath.transform(m);
+
+        mStarPaint = new Paint();
+        mStarPaint.setColor(Color.argb(0, 49, 180, 200));
+        mStarPaint.setAlpha(128);
+
+        
+        
+        
     }
 
     @Override
@@ -65,8 +97,30 @@ public class ScoresheetHeaderView extends View {
 
                 for (int i = 0; i < playerNames.size(); i++) {
 
+                    
                     // use paint to clip text
                     String playerName = playerNames.get(i);
+                    
+                    
+                    // draw backing star if required
+                    if (ViewUtilities.playerHasWonARound(playerName, mModel.getRounds())) {
+                        
+                        float starX = widthPerPlayer / 2;
+                        float starY = ViewUtilities.computeLineHeight(getContext(), mPaint); 
+                        
+                        canvas.save();
+                        canvas.translate(starX, starY);
+                        Path p = new Path(mStarPath);
+                        Matrix m = new Matrix();
+                        float scaleFactor = (float)(1/(1 + Math.tan(36 * Math.PI / 180))) * mPaint.getTextSize();
+                        m.setScale( scaleFactor, scaleFactor);
+                        p.transform(m);
+                        canvas.drawPath(p, mStarPaint);
+                        canvas.restore();
+                        
+                    }
+                    
+                    
                     int numChars = mPaint.breakText(playerName, true, widthPerPlayer, null);
 
                     // TODO: Special case for numChars == 0: reduce font size?
@@ -92,15 +146,7 @@ public class ScoresheetHeaderView extends View {
                             + (mRoundScores.size() > 0 ? mRoundScores.get(mRoundScores.size() - 1)
                                     .getRoundCumulativeScores().get(playerName) : 0);
 
-                    // draw backing star if required
-                    if (ViewUtilities.playerHasWonARound(playerName, mModel.getRounds())) {
-                        int starX = (int) ViewUtilities.computeCentredStringStart(0,
-                                widthPerPlayer, (int) mPaint.getTextSize() * 2);
-                        int starWidth = (int) mPaint.getTextSize() * 2;
-                        mStarDrawable.setBounds(starX, 0, starX + starWidth, starWidth);
-                        mStarDrawable.setAlpha(75);
-                        mStarDrawable.draw(canvas);
-                    }
+
 
                     // now draw the player's score
                     float scoreWidth = mPaint.measureText(textToDraw);
@@ -131,7 +177,6 @@ public class ScoresheetHeaderView extends View {
 
     public void setGameStateModel(GameStateModel model) {
         mModel = model;
-//        mDrawStrategy = DrawStrategyFactory.buildDrawStrategy(getContext(), mPaint, mModel.getPlayers(), mModel.computeRoundScores(), getWidth());
         scoreUpdated();
     }
 

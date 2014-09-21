@@ -18,14 +18,20 @@ public class RoundStateModel implements Serializable {
 //    private int mMade;
 
     private RoundResult mRoundResult;
+    private RookRuleSet mRules;
     
-    public RoundStateModel() {
-        mRoundResult = new RoundResult(null, new ArrayList<String>(), 0, 0);
+    public RoundStateModel(RookRuleSet rules) {
+        mRoundResult = new RoundResult(rules, null, new ArrayList<String>(), 0, 0);
+        mRules = rules;
     }
 
     public RoundStateModel(RoundStateModel toCopy) {
         mState = toCopy.mState;
-        mRoundResult = new RoundResult(toCopy.getRoundResult().getCaller(), toCopy.getRoundResult().getPartners(), toCopy.getRoundResult().getBid(), toCopy.getRoundResult().getMade());
+        mRoundResult = new RoundResult(toCopy.getRules(), toCopy.getRoundResult().getCaller(), toCopy.getRoundResult().getPartners(), toCopy.getRoundResult().getBid(), toCopy.getRoundResult().getMade());
+    }
+    
+    public RookRuleSet getRules() {
+        return mRules;
     }
     
     public RoundState getState() {

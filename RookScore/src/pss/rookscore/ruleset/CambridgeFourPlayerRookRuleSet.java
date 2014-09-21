@@ -36,5 +36,6 @@ public class CambridgeFourPlayerRookRuleSet implements RookRuleSet {
     public boolean requireMadeBidToWin() {
         return true;
     }
+    
 
 }

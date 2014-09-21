@@ -124,13 +124,18 @@ public class AddPlayerActivity extends Activity implements PlayerSelectionListen
     public void playerRemoved(final List<String> playerNames) {
         
         
-        String[] playerNamesArray = (String[]) playerNames.toArray(new String[playerNames.size()]);
+        Object args[] = new Object[playerNames.size() + 1];
+        args[0] = playerNames.size();
+        for(int i = 0; i < playerNames.size(); i++){
+            args[i + 1] = playerNames.get(i);
+        }
+                
         
         // prompt to delete
         new AlertDialog.Builder(this)
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle(getResources().getQuantityString(R.plurals.add_player_remove_multi_player_dialog_title, playerNames.size(), playerNames.size(), playerNamesArray))
-                .setMessage(getResources().getQuantityString(R.plurals.add_player_remove_multi_player_dialog_message, playerNames.size(), playerNames.size(), playerNamesArray))
+                .setTitle(getResources().getQuantityString(R.plurals.add_player_remove_multi_player_dialog_title, playerNames.size(), args))
+                .setMessage(getResources().getQuantityString(R.plurals.add_player_remove_multi_player_dialog_message, playerNames.size(), args))
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener()
                 {
                     @Override

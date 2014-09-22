@@ -48,6 +48,8 @@ public class PlayerListFragment extends Fragment {
     private ListView mPlayerListView;
 
     private boolean mUseMultiSelect = true;
+
+    private PlayerListMultiChoiceModeListener mMultiselectlistener;
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -81,19 +83,28 @@ public class PlayerListFragment extends Fragment {
         
         if(mUseMultiSelect){
             mPlayerListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-            mPlayerListView.setMultiChoiceModeListener(new PlayerListMultiChoiceModeListener(getActivity(), mPlayerListView));
+            mMultiselectlistener = new PlayerListMultiChoiceModeListener(getActivity(), mPlayerListView);
+            mPlayerListView.setMultiChoiceModeListener(mMultiselectlistener);
         }
         
         
 
         
         mGestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
+            
+            
             @Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
                 
                 //A few conditions to check
                 // - Was fling restricted to a single list item's boundaries?
                 //- Was flight from left to righy?
+               
+                if(mMultiselectlistener != null && mMultiselectlistener.isIgnoreFling()){
+                        return true;
+                }
+                
+                
                 
                 if(e1.getX() < e2.getX()){
                     
@@ -111,6 +122,9 @@ public class PlayerListFragment extends Fragment {
                                 //ok, we've found the list item that the fling was on. Translate to a model item and remove it
                                 String itemAtPosition = (String)mPlayerListView.getItemAtPosition(i);
                                 ((PlayerSelectionListener) getActivity()).playerRemoved(Collections.singletonList(itemAtPosition));
+                                
+               
+                                
                                 return true;
                             } 
                         } else {
@@ -125,12 +139,13 @@ public class PlayerListFragment extends Fragment {
                 return super.onFling(e1, e2, velocityX, velocityY);
             }
         });
-        
+
         mPlayerListView.setOnTouchListener(new OnTouchListener() {
             
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 return mGestureDetector.onTouchEvent(event);
+                
             }
         });
         

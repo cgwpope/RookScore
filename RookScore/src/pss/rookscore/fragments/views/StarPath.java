@@ -14,6 +14,8 @@ class StarPath extends Path {
     private static final float DEGREES_PER_STAR_POINT = 360f/STAR_POINTS;
     private static final double RADIANS_PER_DEGREE = Math.PI / 180;
     private Paint mStarPaint;
+    private final int mBaseAlpha = 128;
+    private int mAlphaOffset = 0;
 
     public StarPath(Context context) {
         final double triangeBaseWidth = Math.tan(DEGREES_PER_STAR_POINT/2 * RADIANS_PER_DEGREE);
@@ -39,8 +41,6 @@ class StarPath extends Path {
         
         mStarPaint = new Paint();
         mStarPaint.setColor(context.getResources().getColor(R.color.rook_cyan));
-        mStarPaint.setAlpha(128);
-
     }
 
     public void drawToCanvas(Canvas canvas, float textSize) {
@@ -49,7 +49,16 @@ class StarPath extends Path {
         float scaleFactor = (float)(1/(1 + Math.tan(DEGREES_PER_STAR_POINT / 2 * RADIANS_PER_DEGREE))) * textSize;
         m.setScale( scaleFactor, scaleFactor);
         p.transform(m);
+        
+        mStarPaint.setAlpha(mBaseAlpha + mAlphaOffset );
+        
         canvas.drawPath(p, mStarPaint);
         
     }
+
+    public void setAlphaOffset(int animatedValue) {
+        mAlphaOffset = animatedValue; 
+    }
+
+
 }

@@ -40,6 +40,8 @@ public class PlayerListFragment extends Fragment {
 
     private static final String PLAYER_LIST = PlayerListFragment.class.getName() + ".PlayerList";
 
+    protected static final float MINIMUM_FLING_FACTOR = 200;
+
     private ArrayAdapter<String> mListAdapter;
     private List<String> mPlayerList = new ArrayList<String>();
 
@@ -106,8 +108,9 @@ public class PlayerListFragment extends Fragment {
                 
                 
                 
-                if(e1.getX() < e2.getX()){
+                if(e1.getX() < e2.getX() && e2.getX() - e1.getX() > MINIMUM_FLING_FACTOR){
                     
+                    System.out.println(e2.getX() - e1.getX());
                     
                     for(int i = mPlayerListView.getFirstVisiblePosition(); i <= mPlayerListView.getLastVisiblePosition(); i++){
                         View v = mPlayerListView.getChildAt(i);

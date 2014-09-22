@@ -6,22 +6,27 @@ import java.util.List;
 
 import pss.rookscore.model.GameStateModel;
 import pss.rookscore.model.RoundSummary;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.CycleInterpolator;
 
 public class ScoresheetHeaderView extends View {
 
     private final Paint mPaint;
     private GameStateModel mModel;
     private List<RoundSummary> mRoundScores;
-//    private Drawable mStarDrawable;
     private boolean mUseFullWidth;
     private DrawStrategy mDrawStrategy;
     private StarPath mStarPath;
+    private ValueAnimator mAnimator;
 
     public ScoresheetHeaderView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -29,6 +34,24 @@ public class ScoresheetHeaderView extends View {
         mPaint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
 
         mStarPath = new StarPath(context);
+        
+        mAnimator = ValueAnimator.ofInt(-20, 20);
+        mAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        mAnimator.setDuration(2000);
+        mAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                mStarPath.setAlphaOffset((Integer)animation.getAnimatedValue());
+                invalidate();
+            }
+        });
+        
+        
+        mAnimator.setRepeatMode(ValueAnimator.REVERSE);
+        mAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        
+//        mAnimator.start();
     }
 
     @Override
@@ -152,6 +175,12 @@ public class ScoresheetHeaderView extends View {
 
     public void setUseFullWidth(boolean useFullWidth) {
         mUseFullWidth = useFullWidth;
+    }
+    
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+//        mAnimator.end();
     }
 
 }

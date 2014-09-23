@@ -13,16 +13,11 @@ import pss.rookscore.events.BluetoothBroadcastStartedEvent;
 import pss.rookscore.events.GameOverEvent;
 import pss.rookscore.events.GameStateChangedEvent;
 import pss.rookscore.events.SpectatorsChangedEvent;
-import android.app.Activity;
-import android.app.Application.ActivityLifecycleCallbacks;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
-import android.nfc.NdefMessage;
-import android.nfc.NfcAdapter;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -30,70 +25,6 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
 public class BluetoothBroadcastService extends Service  {
-
-    public static class BluetoothPairingNFCActivityLifecycleListener implements ActivityLifecycleCallbacks {
-
-        private NfcAdapter mNFCAdapter;
-        private BluetoothAdapter mBluetoothAdapter;
-
-        public BluetoothPairingNFCActivityLifecycleListener(NfcAdapter nfcAdapter, BluetoothAdapter bluetoothAdapter) {
-            mNFCAdapter = nfcAdapter;
-            mBluetoothAdapter = bluetoothAdapter;
-        }
-        
-
-
-        @Override
-        public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void onActivityStarted(Activity activity) {
-            setNFCBroadcastMessageForActivity(activity);
-                
-        }
-
-        void setNFCBroadcastMessageForActivity(Activity activity) {
-            if(activity instanceof RookScoreNFCBroadcaster){
-                mNFCAdapter.setNdefPushMessage(new NdefMessage(RookScoreNFCBroadcaster.RookScoreNFCUtils.newTextRecord(mBluetoothAdapter.getAddress())), activity);
-            } else {
-                mNFCAdapter.setNdefPushMessage(null, activity);
-            }
-        }
-
-        @Override
-        public void onActivityResumed(Activity activity) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void onActivityPaused(Activity activity) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void onActivityStopped(Activity activity) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void onActivityDestroyed(Activity activity) {
-            // TODO Auto-generated method stub
-
-        }
-
-    }
 
     public static final Serializable GAVE_OVER_MSG = RookScoreApplication.class.getName() + ".GameOverMessage";
     private BluetoothServerSocket mBluetoothServerSocket;
@@ -127,18 +58,9 @@ public class BluetoothBroadcastService extends Service  {
                 mBluetoothServerSocket = bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord("Rookscore SDP", MainActivity.ROOK_SCORE_BLUETOOTH_SERVICE_UUID);
                 
                 
-                NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-                
-                final BluetoothPairingNFCActivityLifecycleListener activityLifecycleCallback = (nfcAdapter == null ? null : new BluetoothPairingNFCActivityLifecycleListener(nfcAdapter, bluetoothAdapter));
-                if (activityLifecycleCallback != null) {
-                    getApplication().registerActivityLifecycleCallbacks(activityLifecycleCallback);
-                }
-                
-                
                 mRun = true;
                 new Thread("Bluetooth listen thread") {
                     public void run() {
-                        try {
                             while (mRun) {
                                 try {
                                     
@@ -154,11 +76,6 @@ public class BluetoothBroadcastService extends Service  {
                                     continue;
                                 }
                             }
-                        } finally {
-                            if(activityLifecycleCallback != null){
-                                getApplication().unregisterActivityLifecycleCallbacks(activityLifecycleCallback);
-                            }
-                        }
                     }
                 }.start();
             }

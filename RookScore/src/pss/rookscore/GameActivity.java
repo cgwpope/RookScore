@@ -4,6 +4,7 @@ package pss.rookscore;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import pss.rookscore.NFCLifecycleCallbacks.RookScoreNFCBroadcaster;
 import pss.rookscore.events.BluetoothBroadcastStartedEvent;
 import pss.rookscore.events.GameOverEvent;
 import pss.rookscore.events.GameStateChangedEvent;
@@ -168,13 +169,6 @@ public class GameActivity extends Activity implements RookScoreNFCBroadcaster {
     }
 
     
-    @Subscribe
-    public void handleBluetoothBroadcastStarted(BluetoothBroadcastStartedEvent e) {
-        NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        if (nfcAdapter != null) {
-            nfcAdapter.setNdefPushMessage(new NdefMessage(RookScoreNFCBroadcaster.RookScoreNFCUtils.newTextRecord(e.mAddress)), this);
-        }
-    }
 
 
 

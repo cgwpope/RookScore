@@ -4,6 +4,7 @@ package pss.rookscore;
 import java.util.List;
 import java.util.Stack;
 
+import pss.rookscore.NFCLifecycleCallbacks.RookScoreNFCBroadcaster;
 import pss.rookscore.events.GameStateChangedEvent;
 import pss.rookscore.events.SpectatorsChangedEvent;
 import pss.rookscore.fragments.BidFragment;

@@ -1,6 +1,7 @@
 package pss.rookscore;
 
 import android.app.Application;
+import android.nfc.NfcAdapter;
 
 import com.google.common.eventbus.EventBus;
 
@@ -14,6 +15,14 @@ public class RookScoreApplication extends Application {
     public void onCreate() {
         super.onCreate();
         mEventBus = new EventBus();
+        
+        
+        NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        
+        if(nfcAdapter != null){
+            registerActivityLifecycleCallbacks(new NFCLifecycleCallbacks(mEventBus, nfcAdapter));    
+        }
+        
         
     }
     

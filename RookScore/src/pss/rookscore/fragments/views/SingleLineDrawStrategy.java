@@ -18,9 +18,9 @@ public class SingleLineDrawStrategy implements DrawStrategy {
     private final List<String> mPlayerNames;
     private final Paint mPaint;
     private Context mContext;
-    private List<RoundSummary> mRoundSummaries;
     private Paint mCheckMarkPaint;
     private Paint mXMarkPaint;
+    private float mRoundSummaryWidth;
 
     static final int DEFAULT_ROUND_SUMMARY_WIDTH = 100;
 
@@ -28,7 +28,6 @@ public class SingleLineDrawStrategy implements DrawStrategy {
         mContext = context;
         mTotalWidth = totalWidth;
         mPlayerNames = playerNames;
-        mRoundSummaries = roundSummaries;
         mPaint = p;
         
         mCheckMarkPaint = new Paint();
@@ -37,6 +36,11 @@ public class SingleLineDrawStrategy implements DrawStrategy {
         
         mXMarkPaint = new Paint();
         mXMarkPaint.setStyle(Style.FILL);
+        
+        
+        mRoundSummaryWidth = computeRoundSummaryWidth(roundSummaries);
+        
+        
 
     }
 
@@ -54,13 +58,13 @@ public class SingleLineDrawStrategy implements DrawStrategy {
         Paint fillPaint;
         if(roundSummary.getRoundResult().getMade() >= roundSummary.getRoundResult().getBid()){
             fillPaint = mCheckMarkPaint;
-            fillPaint.setShader(new LinearGradient(0, 0, computeRoundSummaryWidth(mRoundSummaries), 0, 0x00006600, 0x80006600, TileMode.MIRROR));
+            fillPaint.setShader(new LinearGradient(0, 0, mRoundSummaryWidth, 0, 0x00006600, 0x80006600, TileMode.MIRROR));
         } else {
             fillPaint = mXMarkPaint;
-            fillPaint.setShader(new LinearGradient(0, 0, computeRoundSummaryWidth(mRoundSummaries), 0, 0x00ff0000, 0x60ff0000, TileMode.MIRROR));
+            fillPaint.setShader(new LinearGradient(0, 0, mRoundSummaryWidth, 0, 0x00ff0000, 0x60ff0000, TileMode.MIRROR));
         }
         
-        c.drawRect(-ViewUtilities.scaleText(context, 4), -computeHeight() - ViewUtilities.scaleText(context, 4), mTotalWidth - computeRoundSummaryWidth(mRoundSummaries) + ViewUtilities.scaleText(context, 4), ViewUtilities.scaleText(context, 4), fillPaint);
+        c.drawRect(-ViewUtilities.scaleText(context, 4), -computeHeight() - ViewUtilities.scaleText(context, 4), mTotalWidth - mRoundSummaryWidth + ViewUtilities.scaleText(context, 4), ViewUtilities.scaleText(context, 4), fillPaint);
 
     }
 
@@ -100,14 +104,13 @@ public class SingleLineDrawStrategy implements DrawStrategy {
         return maxWidth;
     }
 
-    private void summarizeRoundResult(StringBuilder roundSummaryText, RoundResult roundResult,
-            List<String> playerNames) {
+    private void summarizeRoundResult(StringBuilder roundSummaryText, RoundResult roundResult,List<String> playerNames) {
         ViewUtilities.summarizeCompleteRoundResult(roundSummaryText, roundResult, mPlayerNames);
     }
     
     @Override
     public float getWidthPerPlayer() {
-        return (mTotalWidth - computeRoundSummaryWidth(mRoundSummaries))/mPlayerNames.size();
+        return (mTotalWidth - mRoundSummaryWidth)/mPlayerNames.size();
     }
 
 }

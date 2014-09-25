@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import pss.rookscore.NFCLifecycleCallbacks.RookScoreNFCBroadcaster;
-import pss.rookscore.events.BluetoothBroadcastStartedEvent;
 import pss.rookscore.events.GameOverEvent;
 import pss.rookscore.events.GameStateChangedEvent;
 import pss.rookscore.events.SpectatorsChangedEvent;
@@ -16,11 +15,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.nfc.NdefMessage;
-import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewTreeObserver.OnPreDrawListener;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -37,7 +35,6 @@ public class GameActivity extends Activity implements RookScoreNFCBroadcaster {
 
     private EventBus mEventBus;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,7 +50,6 @@ public class GameActivity extends Activity implements RookScoreNFCBroadcaster {
         super.onStop();
         mEventBus.unregister(this);
     }
-    
 
     // events
     @Subscribe
@@ -123,22 +119,52 @@ public class GameActivity extends Activity implements RookScoreNFCBroadcaster {
     }
 
     private void startNewRound() {
-        Intent i = new Intent(this, PlayRoundActivity.class);
-        i.putExtra(PlayRoundActivity.GAME_STATE_MODEL, mGameModel);
-        startActivityForResult(i, PLAY_ROUND_REQUEST);
+        Runnable newRoundRunnable = new Runnable() {
+            @Override
+            public void run() {
+                Intent i = new Intent(GameActivity.this, PlayRoundActivity.class);
+                i.putExtra(PlayRoundActivity.GAME_STATE_MODEL, mGameModel);
+                startActivityForResult(i, PLAY_ROUND_REQUEST);
+                overridePendingTransition(0, 0);
+
+            }
+        };
+
+        // but before all that... let's have some fun.
+        ScoresheetFragment scoresheetFragment = (ScoresheetFragment) getFragmentManager().findFragmentById(R.id.scoresheetFragment);
+        scoresheetFragment.runExitAnimation(newRoundRunnable);
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == PLAY_ROUND_REQUEST && resultCode == RESULT_OK) {
-            // build up a new round from the intend
-            RoundStateModel rsm = (RoundStateModel) data.getSerializableExtra(PlayRoundActivity.ROUND_STATE_MODEL);
-            mGameModel.getRounds().add(rsm.getRoundResult());
+        if (requestCode == PLAY_ROUND_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                // build up a new round from the intend
+                RoundStateModel rsm = (RoundStateModel) data.getSerializableExtra(PlayRoundActivity.ROUND_STATE_MODEL);
+                mGameModel.getRounds().add(rsm.getRoundResult());
 
-            mEventBus.post(new GameStateChangedEvent(mGameModel));
+                mEventBus.post(new GameStateChangedEvent(mGameModel));
 
-            // onResume() will be called since we're just about to show view -
-            // that will cause the view to be updated with the latest model
+                // onResume() will be called since we're just about to show view
+                // -
+                // that will cause the view to be updated with the latest model
+            }
+            
+            
+            final ScoresheetFragment scoresheetFragment = (ScoresheetFragment) getFragmentManager().findFragmentById(R.id.scoresheetFragment);
+            scoresheetFragment.getView().getViewTreeObserver().addOnPreDrawListener(new OnPreDrawListener() {
+                
+                @Override
+                public boolean onPreDraw() {
+                    scoresheetFragment.getView().getViewTreeObserver().removeOnPreDrawListener(this);        
+                    scoresheetFragment.runEnterAnimation();
+                    return true;
+                }
+            });
+            
+
+
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -167,10 +193,5 @@ public class GameActivity extends Activity implements RookScoreNFCBroadcaster {
 
         mEventBus.post(new GameStateChangedEvent(mGameModel));
     }
-
-    
-
-
-
 
 }

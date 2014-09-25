@@ -19,6 +19,8 @@ public class ScoresheetRoundScoreView extends View {
     private GameStateModel mModel;
     private List<RoundSummary> mRoundSummaries;
     private DrawStrategy mDrawStrategy;
+    private float mRoundSummaryWidth;
+    private List<RoundSummary> mRoundScores;
 
     public ScoresheetRoundScoreView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -52,7 +54,6 @@ public class ScoresheetRoundScoreView extends View {
         if (playerNames != null && playerNames.size() > 0) {
             // evenly allocate width to players, draw their names
 
-            float roundSummaryWidth = mDrawStrategy.computeRoundSummaryWidth(mRoundSummaries);
 
             canvas.save();
             
@@ -75,7 +76,7 @@ public class ScoresheetRoundScoreView extends View {
             canvas.restore();
             
             //we are done painting the player scores. Move to the round summary, ready to draw texty
-            canvas.translate(getWidth() - roundSummaryWidth, ViewUtilities.computeLineHeight(getContext(), mTextPaint));
+            canvas.translate(getWidth() - mRoundSummaryWidth, ViewUtilities.computeLineHeight(getContext(), mTextPaint));
 
             mDrawStrategy.drawRoundSummary(getContext(), canvas, summary);
         }
@@ -84,10 +85,13 @@ public class ScoresheetRoundScoreView extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width = View.MeasureSpec.getSize(widthMeasureSpec);
-        mDrawStrategy = DrawStrategyFactory.buildDrawStrategy(getContext(), mTextPaint, mModel.getPlayers(), mModel.computeRoundScores(), width);
+        mDrawStrategy = DrawStrategyFactory.buildDrawStrategy(getContext(), mTextPaint, mModel.getPlayers(), getCachedRoundScores(), width);
+        mRoundSummaryWidth = mDrawStrategy.computeRoundSummaryWidth(mRoundSummaries);
         setMeasuredDimension(width, (int)mDrawStrategy.computeHeight() + 5);
     }
     
+
+
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
@@ -104,6 +108,18 @@ public class ScoresheetRoundScoreView extends View {
         invalidate();
         requestLayout();
         
+    }
+
+    private List<RoundSummary> getCachedRoundScores() {
+        if(mRoundScores != null){
+            return mRoundScores;
+        } else {
+            return mModel.computeRoundScores();
+        }
+    }
+    
+    public void setRoundScores(List<RoundSummary> computeRoundScores) {
+        mRoundScores = computeRoundScores;
     }
     
 

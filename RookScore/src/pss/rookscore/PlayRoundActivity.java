@@ -167,7 +167,7 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
         
         ScoresheetHeaderView shv = (ScoresheetHeaderView)findViewById(R.id.scoresheetHeaderView);
         shv.setGameStateModel(mModel);
-        shv.setUseFullWidth(true);
+        shv.setFractionReservedForSummaryColumn(0f);
     }
 
     private void updateBidView() {

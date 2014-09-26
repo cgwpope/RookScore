@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:layout_marginBottom="5dp"
+    android:layout_marginBottom="@dimen/card_view_padding"
     card_view:cardCornerRadius="6dp" >
 
     <FrameLayout

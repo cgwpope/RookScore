@@ -23,6 +23,9 @@ import pss.rookscore.ruleset.CambridgeSixPlayerRookRuleSet;
 import pss.rookscore.ruleset.RoundController;
 import pss.rookscore.ruleset.RoundController.RoundState;
 import pss.rookscore.ruleset.RoundStateModel;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.Animator.AnimatorListener;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -31,6 +34,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -38,6 +45,23 @@ import com.google.common.eventbus.Subscribe;
 public class PlayRoundActivity extends Activity implements PlayerSelectionListener,
         BidSelectionListener, RookScoreNFCBroadcaster {
 
+    
+    private static enum AnimateRequest {
+        DO_NOT_ANIMATE(0),
+        ANIMATE_FORWARD (1),
+        ANIMATE_REVERSE (-1);
+        
+        private final int mValue;
+
+        private AnimateRequest(int value){
+            mValue = value;
+        }
+        
+        public int getValue() {
+            return mValue;
+        }
+    }
+    
     /*
      * Collect: Bidder Bid Partner Made Rely on: PlayerListFragment for player
      * selection BigFragment for bid/score selection
@@ -116,7 +140,7 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
     public void onBackPressed() {
         if(mRoundStateStack.size() > 0){
             mRoundController.setRoundState(mRoundStateStack.pop());
-            updateBidView();
+            updateBidView(AnimateRequest.ANIMATE_REVERSE);
         } else {
             super.onBackPressed();    
         }
@@ -163,16 +187,14 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
         super.onResume();
 
         // based on state, and fragment mode, choose fragment to display
-        updateBidView();
+        updateBidView(AnimateRequest.DO_NOT_ANIMATE);
         
         ScoresheetHeaderView shv = (ScoresheetHeaderView)findViewById(R.id.scoresheetHeaderView);
         shv.setGameStateModel(mModel);
         shv.setFractionReservedForSummaryColumn(0f);
     }
 
-    private void updateBidView() {
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+    private void updateBidView(final AnimateRequest animateRequest) {
         // assume single fragment for now
         Fragment newFragment;
 
@@ -204,9 +226,56 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
         
         
         if (newFragment != null) {
-            fragmentTransaction.replace(R.id.playRoundActivityFragmentParent, newFragment);
-            //don't add to back-stack, we are supplying custom back-stack handling
-            fragmentTransaction.commit();
+            final Fragment finalNewFragment = newFragment;
+            
+            final Runnable fragmentSwitchRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    FragmentManager fragmentManager = getFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                    fragmentTransaction.replace(R.id.playRoundActivityFragmentParent, finalNewFragment);
+                    //don't add to back-stack, we are supplying custom back-stack handling
+                    fragmentTransaction.commit();
+                                        
+                }
+            };
+            
+            
+            if(!animateRequest.equals(AnimateRequest.DO_NOT_ANIMATE)){
+                final View v = findViewById(R.id.playRoundActivityFragmentParent);
+                v.animate()
+                .translationX(-1 * animateRequest.getValue() * v.getWidth())
+                .setDuration(250)
+                .setInterpolator(new AccelerateInterpolator())
+                .setListener(new AnimatorListenerAdapter() {
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        //the animation listener is added to the view, so without removing the listener, it will fire when the second animation finishes as well - we don't want this!
+                        v.animate().setListener(null);
+
+                        
+                        fragmentSwitchRunnable.run();
+                        
+                        v.setTranslationX(animateRequest.getValue() * v.getWidth());
+                        
+                        v.animate()
+                        .translationX(0)
+                        .setDuration(250)
+                        .setInterpolator(new DecelerateInterpolator())
+                        .start();
+                    }
+                    
+                })
+                .start(); 
+            } else {
+                fragmentSwitchRunnable.run();
+            }
+            
+            
+
+            
         } else {
             // we have everything - return to calling activity
             Intent i = new Intent();
@@ -214,7 +283,12 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
             serializeState(b);
             i.putExtras(b);
             setResult(RESULT_OK, i);
+            
+            
             finish();
+
+            overridePendingTransition(0, 0);
+            
         }
         
         
@@ -288,7 +362,7 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
             //advance to next
             mRoundController.getRoundState().setState(mRoundController.nextState());
             
-            updateBidView();
+            updateBidView(AnimateRequest.ANIMATE_FORWARD);
         }
         
     }
@@ -306,7 +380,7 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
         mRoundController.getRoundState().setState(mRoundController.nextState());
 
 
-        updateBidView();
+        updateBidView(AnimateRequest.ANIMATE_FORWARD);
 
     }
 

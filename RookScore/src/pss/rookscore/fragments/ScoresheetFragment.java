@@ -156,7 +156,7 @@ public class ScoresheetFragment extends Fragment {
         // ok, move the scoresheet out of the way first, then move the header to
         // the bottom
         View v = getView().findViewById(R.id.roundScoreListview);
-        v.animate().translationX(getView().getWidth())
+        v.animate().translationX(-getView().getWidth())
                 .setDuration(250)
                 .setInterpolator(new AccelerateDecelerateInterpolator())
                 .start();
@@ -181,20 +181,11 @@ public class ScoresheetFragment extends Fragment {
     }
 
     public void runEnterAnimation() {
-        // ok, move the scoresheet out of the way first, then move the header to
-        // the bottom
-        View v = getView().findViewById(R.id.roundScoreListview);
-        v.animate().translationX(0)
-                .setDuration(250)
-                .setInterpolator(new AccelerateDecelerateInterpolator())
-                .start();
-
         final ScoresheetHeaderView shv = (ScoresheetHeaderView) getView().findViewById(R.id.scoresheetHeaderView);
-        v = getView().findViewById(R.id.scoresheet_header_card_view);
+        View v = getView().findViewById(R.id.scoresheet_header_card_view);
         v.animate().translationY(0)
-                .setDuration(500)
+                .setDuration(350)
                 .setInterpolator(new AccelerateDecelerateInterpolator())
-                .setStartDelay(125)
                 .setUpdateListener(new AnimatorUpdateListener() {
                     @Override
                     public void onAnimationUpdate(ValueAnimator animation) {
@@ -204,6 +195,14 @@ public class ScoresheetFragment extends Fragment {
                 })
 
                 .start();
+        
+        v = getView().findViewById(R.id.roundScoreListview);
+        v.animate().translationX(0)
+                .setDuration(250)
+                .setStartDelay(200)
+                .setInterpolator(new AccelerateDecelerateInterpolator())
+                .start();
+
     }
 
 }

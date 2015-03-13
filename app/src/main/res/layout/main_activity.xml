@@ -31,13 +31,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
+        android:layout_margin="10dp"
         >
         <Button
             android:id="@+id/addPlayerButton"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:background="@drawable/black_circle"
-            android:layout_margin="10dp">
+            android:layout_margin="20dp">
 
         </Button>
 
@@ -46,7 +47,7 @@
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:background="@drawable/play_circle"
-            android:layout_margin="10dp">
+            android:layout_margin="20dp">
 
         </Button>
 

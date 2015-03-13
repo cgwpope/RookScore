@@ -104,7 +104,7 @@ public class RemotePlayerModule implements RookScoreApplication.Module {
                 RemotePlayer player = impl.newInstance(RemotePlayer.class);
                 player.setFirstName(entry.getKey().getFirstname());
                 player.setLastName(entry.getKey().getLastname());
-                player.setPlayerId(((WebApiPlayer) entry.getKey()).getId());
+                    player.setPlayerId(((WebApiPlayer) entry.getKey()).getId());
                 score.setPlayer(player);
                 score.setScore(entry.getValue());
                 score.setMadeBid(ViewUtilities.playerHasWonARound(entry.getKey(), ev.getGameModel().getRounds()));

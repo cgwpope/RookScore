@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
-	<item 
-	    android:id="@+id/actionBarNewRound"
-	    android:title="@string/game_activity_start_round_action"
-	    android:showAsAction="always"
-	    />    
-</menu>

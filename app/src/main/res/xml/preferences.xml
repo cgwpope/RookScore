@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <CheckBoxPreference
+    android:key="enable_web_api"
+    android:title="@string/enable_web_api_mode"
+    android:summary="@string/enable_web_api_mode_desc"
+    android:defaultValue="false"
+        />
+
+    <EditTextPreference
+        android:key="web_player_list_url"
+        android:title="@string/web_api_player_list"
+        android:summary="@string/web_api_player_list_desc"
+        android:defaultValue="http://rook2.chruszcz.ca/api/players/"
+        android:inputType="textUri"
+        />
+
+    <EditTextPreference
+        android:key="web_game_list_url"
+        android:title="@string/web_api_game_list"
+        android:summary="@string/web_api_game_list_desc"
+        android:defaultValue="http://rook2.chruszcz.ca/api/games/"
+        android:inputType="textUri"
+        />
+
+    <EditTextPreference
+        android:key="web_api_username"
+        android:title="@string/web_api_username"
+        android:summary="@string/web_api_username_desc"
+        android:defaultValue=""
+
+        />
+
+    <EditTextPreference
+        android:key="web_api_password"
+        android:title="@string/web_api_password"
+        android:summary="@string/web_api_password_desc"
+        android:defaultValue=""
+        android:inputType="textPassword"
+        />
+
+</PreferenceScreen>

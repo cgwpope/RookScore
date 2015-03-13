@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/card_view_padding"
+        android:orientation="vertical"
+        android:background="#31ffffff">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="@string/game_setup_players_in_game"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+        <fragment
+            android:id="@+id/playerListFragment"
+            android:name="pss.rookscore.fragments.PlayerListFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            tools:layout="@layout/player_list_fragment"/>
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_margin="10dp"
+        >
+        <Button
+            android:id="@+id/addPlayerButton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@drawable/black_circle"
+            android:layout_margin="20dp">
+
+        </Button>
+
+        <Button
+            android:id="@+id/startButton"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:background="@drawable/play_circle"
+            android:layout_margin="20dp">
+
+        </Button>
+
+
+
+        </LinearLayout>
+    
+
+</FrameLayout>

@@ -1,0 +1,36 @@
+<resources>
+
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="app_name">RookScore</string>
+    <string name="game_setup_players_in_game">Players in this game:</string>
+    <string name="game_activity_start_game_action">Start Game</string>
+    <string name="add_player_add_player_action">Add Player</string>
+    <string name="bid_menu_enable_all_bids">Enable All Bids</string>
+    <string name="bid_menu_enable_all_bids_short">All Bids</string>
+    <string name="game_activity_start_round_action">New Round</string>
+    <string name="player_list_cab_add_multiple_players">Add Selected Players</string>
+    <string name="player_list_cab_remote_multiple_players">Remove Selected Players</string>
+    <string name="add_player_new_player_dialog_title">Add New Player</string>
+    <string name="add_player_new_player_dialog_message">Please provide the name of the new player</string>
+
+    <plurals name="add_player_remove_multi_player_dialog_title">
+        <item quantity="one">Remove %2$s from default list</item>
+        <item quantity="other">Remove %1$d players from default list</item>
+    </plurals>
+    <plurals name="add_player_remove_multi_player_dialog_message">
+        <item quantity="one">Are you sure you want to remove %2$s from the default list of players?</item>
+        <item quantity="other">Are you sure you want to remove these %1$d players from the default list of players?</item>
+    </plurals>
+
+    <string name="game_activity_end_game_dialog_title">End Game</string>
+    <string name="game_activity_end_game_dialog_message">Are you sure you want to end the current game?</string>
+    <string name="made_bid_lost_round_by_label">Lost: %d</string>
+    <string name="scoresheet_remove_round_dialog_title">Remove round?</string>
+    <string name="scoresheet_remove_round_dialog_message">Are you sure you want to remove this round from the game scoresheet?</string>
+    <string name="main_activity_title">Game Setup</string>
+    <string name="add_player_activity_title">Add Players to Game</string>
+    <string name="game_activity_title">Game Score</string>
+    <string name="spectate_activity_title">Game Score (Spectating)</string>
+
+</resources>

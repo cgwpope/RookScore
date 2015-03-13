@@ -1,0 +1,10 @@
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.json:json:20141113'
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}

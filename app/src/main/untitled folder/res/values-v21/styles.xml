@@ -1,0 +1,10 @@
+<resources>
+    
+  <!-- your app's theme inherits from the Material theme -->
+  <!--  
+  <style name="AppTheme" parent="android:Theme.Material.Light">
+  
+    
+  </style>
+  -->
+</resources>

@@ -41,7 +41,7 @@ public class LocalPlayerModule implements RookScoreApplication.Module {
 
     @Subscribe
     public void handlePlayerListLoad(PlayerLoadRequestEvent ev) {
-        // load playerlist from preferences
+        // load playerlist from ruleset_preferences
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mApplication.getApplicationContext());
         Set<String> stringSet = prefs.getStringSet(STORED_PLAYER_NAMES_PREFS_KEY, new HashSet<String>());
         for(String storedName : stringSet){

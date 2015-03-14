@@ -35,8 +35,8 @@ public class SettingsActivity extends PreferenceActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
 
-            // Load the preferences from an XML resource
-            addPreferencesFromResource(R.xml.preferences);
+            // Load the ruleset_preferences from an XML resource
+            addPreferencesFromResource(R.xml.remote_access_preferences);
 
 
             //now they are added, support proper state
@@ -72,5 +72,16 @@ public class SettingsActivity extends PreferenceActivity {
         }
     }
 
+
+    public static class RulesetPreferencesFragment extends PreferenceFragment  {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+            // Load the ruleset_preferences from an XML resource
+            addPreferencesFromResource(R.xml.ruleset_preferences);
+        }
+
+    }
 
 }

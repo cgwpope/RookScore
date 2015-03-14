@@ -2,7 +2,7 @@
 
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="app_name">Choose Players</string>
+    <string name="app_name">RookScore</string>
     <string name="game_setup_players_in_game">Players in this game:</string>
     <string name="game_activity_start_game_action">Start Game</string>
     <string name="add_player_add_player_action">Add Player</string>
@@ -46,6 +46,19 @@
     <string name="web_api_password">Password</string>
     <string name="web_api_password_desc">Web API Password.</string>
 
+
+    <string name="four_player_ruleset">Four-player Ruleset</string>
+    <string name="four_player_ruleset_desc">Select the rules to use for four-player games.</string>
+
+    <string-array name="ruleset_pref_values">
+        <item>pss.rookscore.ruleset.CambridgeFourPlayerRookRuleSet</item>
+        <item>pss.rookscore.ruleset.AllanFourPlayerRookRuleSet</item>
+    </string-array>
+
+    <string-array name="ruleset_pref_names">
+        <item>Cambridge Four-player</item>
+        <item>Allan\'s Four-player</item>
+    </string-array>
 
 
 </resources>

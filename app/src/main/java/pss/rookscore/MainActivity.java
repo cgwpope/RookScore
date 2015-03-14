@@ -35,6 +35,9 @@ public class MainActivity extends Activity implements PlayerSelectionListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        setTitle("Choose Players");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 

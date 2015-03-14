@@ -4,4 +4,9 @@
     <header android:fragment="pss.rookscore.SettingsActivity$WebAccessPreferencesFragment"
         android:title="Remote Scoring"
         android:summary="Configure connection to remote player management and game score tracking." />
+
+    <header android:fragment="pss.rookscore.SettingsActivity$RulesetPreferencesFragment"
+            android:title="Configure Rulesets"
+            android:summary="Configure Rulesets to use" />
+
 </preference-headers>

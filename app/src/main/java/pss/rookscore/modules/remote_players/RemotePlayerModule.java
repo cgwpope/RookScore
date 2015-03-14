@@ -25,6 +25,7 @@ import pss.rookscore.events.PlayerAddedEvent;
 import pss.rookscore.events.PlayerLoadRequestEvent;
 import pss.rookscore.events.PlayersRemovedEvent;
 import pss.rookscore.fragments.views.ViewUtilities;
+import pss.rookscore.model.GameStateModel;
 import pss.rookscore.model.Player;
 import pss.rookscore.model.RoundSummary;
 
@@ -59,8 +60,8 @@ public class RemotePlayerModule implements RookScoreApplication.Module {
         new Thread() {
             public void run() {
                 try {
-                    JSONArray jarray = new JSONArray(readJSON(new URL(mPlayerAPIURL)));
-                    RemotePlayer players[] = new JSONObjectFactoryImpl(new UnderscoreSeparationJSONNamingStrategy(false)).wrap(RemotePlayer.class, jarray);
+                    final String json = readJSON(new URL(mPlayerAPIURL));
+                    RemotePlayer[] players = new WebApiHelper().parseRemotePlayers(json);
                     for (RemotePlayer player : players) {
                         ev.getPlayerSink().addPlayer(new WebApiPlayer(player.getFirstName(), player.getLastName(), player.getPlayerId()));
                     }
@@ -74,6 +75,8 @@ public class RemotePlayerModule implements RookScoreApplication.Module {
     }
 
 
+
+
     @Subscribe
     public void handleGameFinished(GameOverEvent ev) {
         if (ev.getGameModel() == null) {
@@ -83,35 +86,15 @@ public class RemotePlayerModule implements RookScoreApplication.Module {
 
 
 
-        JSONObjectFactoryImpl impl = new JSONObjectFactoryImpl(new UnderscoreSeparationJSONNamingStrategy(false));
-        final RemoteGame rg = impl.newInstance(RemoteGame.class);
-
-        //2015-01-11T23:58:13.520281Z
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSZ");
-
-        rg.setPlayedDate(sdf.format(new Date()));
-        rg.setEnteredDate(sdf.format(new Date()));
 
         final List<RoundSummary> roundSummaries = ev.getGameModel().computeRoundScores();
 
         if (roundSummaries.size() > 0) {
             final Map<Player, Integer> lastRoundScores = roundSummaries.get(roundSummaries.size() - 1).getRoundCumulativeScores();
+            final List<GameStateModel.RoundResult> rounds = ev.getGameModel().getRounds();
 
-            RemoteGameScore scores[] = new RemoteGameScore[lastRoundScores.size()];
-            int i = 0;
-            for (Map.Entry<Player, Integer> entry : lastRoundScores.entrySet()) {
-                RemoteGameScore score = impl.newInstance(RemoteGameScore.class);
-                RemotePlayer player = impl.newInstance(RemotePlayer.class);
-                player.setFirstName(entry.getKey().getFirstname());
-                player.setLastName(entry.getKey().getLastname());
-                    player.setPlayerId(((WebApiPlayer) entry.getKey()).getId());
-                score.setPlayer(player);
-                score.setScore(entry.getValue());
-                score.setMadeBid(ViewUtilities.playerHasWonARound(entry.getKey(), ev.getGameModel().getRounds()));
-                scores[i++] = score;
-            }
-            rg.setScores(scores);
 
+            final RemoteGame rg = new WebApiHelper().buildWebServiceGame(lastRoundScores, rounds);
 
 
             //post the game results to website
@@ -137,6 +120,8 @@ public class RemotePlayerModule implements RookScoreApplication.Module {
         }
 
     }
+
+
 
     private String readJSON(URL u) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) u.openConnection();

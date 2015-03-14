@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <ListPreference
+    android:key="four_player_ruleset"
+    android:title="@string/four_player_ruleset"
+    android:summary="@string/four_player_ruleset_desc"
+    android:entryValues="@array/ruleset_pref_values"
+    android:entries="@array/ruleset_pref_names"
+    android:defaultValue="pss.rookscore.ruleset.CambridgeFourPlayerRookRuleSet"
+
+        />
+
+</PreferenceScreen>

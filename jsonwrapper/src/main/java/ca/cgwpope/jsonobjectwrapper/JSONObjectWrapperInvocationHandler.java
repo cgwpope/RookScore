@@ -200,7 +200,7 @@ class JSONObjectWrapperInvocationHandler implements InvocationHandler {
 		} else if(args[0].getClass().isArray()){
 			
 			JSONArray toSet = new JSONArray();
-			if(args[0].getClass().getComponentType().isAssignableFrom(IJSONObjectWrapper.class)){
+            if(IJSONObjectWrapper.class.isAssignableFrom(args[0].getClass().getComponentType())){
 				//each element in the array is a IJSONObjectWrapper - unwrap and store
 				IJSONObjectWrapper values[] = (IJSONObjectWrapper[])args[0];
 				for (IJSONObjectWrapper value : values) {

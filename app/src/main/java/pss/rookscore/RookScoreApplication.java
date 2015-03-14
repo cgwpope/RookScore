@@ -12,6 +12,7 @@ import java.util.List;
 
 import pss.rookscore.modules.local_players.LocalPlayerModule;
 import pss.rookscore.modules.remote_players.RemotePlayerModule;
+import pss.rookscore.ruleset.AllanFourPlayerRookRuleSet;
 import pss.rookscore.ruleset.CambridgeFivePlayerRookRuleSet;
 import pss.rookscore.ruleset.CambridgeFourPlayerRookRuleSet;
 import pss.rookscore.ruleset.CambridgeSixPlayerRookRuleSet;
@@ -28,7 +29,18 @@ public class RookScoreApplication extends Application implements SharedPreferenc
 
     public RookRuleSet buildRookRuleSet(int numPlayers){
         if(numPlayers == 4){
-            return new CambridgeFourPlayerRookRuleSet();
+
+            //read the pref value
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+            final String ruleset = sharedPref.getString("four_player_ruleset", CambridgeFourPlayerRookRuleSet.class.getName());
+
+            //can do with reflection if it gets more complex
+            if(AllanFourPlayerRookRuleSet.class.getName().equals(ruleset)){
+                return new AllanFourPlayerRookRuleSet();
+            } else {
+                return new CambridgeFourPlayerRookRuleSet();
+            }
+
         } else if(numPlayers == 5){
             return new CambridgeFivePlayerRookRuleSet();
         } else if(numPlayers == 6){

@@ -14,18 +14,16 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 import pss.rookscore.NFCLifecycleCallbacks.RookScoreNFCBroadcaster;
-import pss.rookscore.events.GameOverEvent;
-import pss.rookscore.events.GameStateChangedEvent;
-import pss.rookscore.events.SpectatorsChangedEvent;
+import pss.rookscore.core.events.GameOverEvent;
+import pss.rookscore.core.events.GameStateChangedEvent;
+import pss.rookscore.core.events.SpectatorsChangedEvent;
 import pss.rookscore.fragments.ScoresheetFragment;
-import pss.rookscore.model.GameStateModel;
-import pss.rookscore.model.Player;
-import pss.rookscore.ruleset.RoundStateModel;
+import pss.rookscore.core.model.GameStateModel;
+import pss.rookscore.core.model.Player;
+import pss.rookscore.core.ruleset.RoundStateModel;
 
 public class GameActivity extends Activity implements RookScoreNFCBroadcaster {
 

@@ -1,13 +1,6 @@
 
 package pss.rookscore.fragments;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import pss.rookscore.R;
-import pss.rookscore.fragments.PlayerListFragment.PlayerSelectionListener;
-import pss.rookscore.model.Player;
-
 import android.app.Activity;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -15,6 +8,13 @@ import android.view.MenuItem;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import pss.rookscore.R;
+import pss.rookscore.core.model.Player;
+import pss.rookscore.fragments.PlayerListFragment.PlayerSelectionListener;
 
 class PlayerListMultiChoiceModeListener implements MultiChoiceModeListener {
 

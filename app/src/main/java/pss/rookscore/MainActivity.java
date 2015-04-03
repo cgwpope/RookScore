@@ -8,14 +8,13 @@ import java.util.UUID;
 
 import pss.rookscore.fragments.PlayerListFragment;
 import pss.rookscore.fragments.PlayerListFragment.PlayerSelectionListener;
-import pss.rookscore.model.Player;
-import pss.rookscore.ruleset.RookRuleSet;
+import pss.rookscore.core.model.Player;
+import pss.rookscore.core.ruleset.RookRuleSet;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.nfc.NfcAdapter;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;

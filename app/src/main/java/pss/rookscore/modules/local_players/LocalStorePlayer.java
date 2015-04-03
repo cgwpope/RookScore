@@ -1,6 +1,6 @@
 package pss.rookscore.modules.local_players;
 
-import pss.rookscore.model.Player;
+import pss.rookscore.core.model.Player;
 
 class LocalStorePlayer extends Player {
 

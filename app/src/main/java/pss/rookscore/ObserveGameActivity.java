@@ -3,10 +3,10 @@ package pss.rookscore;
 
 import java.io.UnsupportedEncodingException;
 
-import pss.rookscore.events.GameOverEvent;
-import pss.rookscore.events.GameStateChangedEvent;
+import pss.rookscore.core.events.GameOverEvent;
+import pss.rookscore.core.events.GameStateChangedEvent;
 import pss.rookscore.fragments.ScoresheetFragment;
-import pss.rookscore.model.GameStateModel;
+import pss.rookscore.core.model.GameStateModel;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;

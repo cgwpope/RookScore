@@ -2,8 +2,8 @@ package pss.rookscore.fragments.views;
 
 import java.util.List;
 
-import pss.rookscore.model.Player;
-import pss.rookscore.model.RoundSummary;
+import pss.rookscore.core.model.Player;
+import pss.rookscore.core.model.RoundSummary;
 import android.content.Context;
 import android.graphics.Paint;
 

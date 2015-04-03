@@ -5,8 +5,9 @@ import java.util.List;
 import java.util.Stack;
 
 import pss.rookscore.NFCLifecycleCallbacks.RookScoreNFCBroadcaster;
-import pss.rookscore.events.GameStateChangedEvent;
-import pss.rookscore.events.SpectatorsChangedEvent;
+import pss.rookscore.core.events.GameStateChangedEvent;
+import pss.rookscore.core.events.SpectatorsChangedEvent;
+import pss.rookscore.core.model.ModelUtilities;
 import pss.rookscore.fragments.BidFragment;
 import pss.rookscore.fragments.BidFragment.BidSelectionListener;
 import pss.rookscore.fragments.InRoundPlayerListFragment;
@@ -14,31 +15,24 @@ import pss.rookscore.fragments.MadeBidFragment;
 import pss.rookscore.fragments.PlayerListFragment;
 import pss.rookscore.fragments.PlayerListFragment.PlayerSelectionListener;
 import pss.rookscore.fragments.views.ScoresheetHeaderView;
-import pss.rookscore.fragments.views.ViewUtilities;
-import pss.rookscore.model.GameStateModel;
-import pss.rookscore.model.GameStateModel.RoundResult;
-import pss.rookscore.model.Player;
-import pss.rookscore.ruleset.CambridgeFivePlayerRookRuleSet;
-import pss.rookscore.ruleset.CambridgeFourPlayerRookRuleSet;
-import pss.rookscore.ruleset.CambridgeSixPlayerRookRuleSet;
-import pss.rookscore.ruleset.RookRuleSet;
-import pss.rookscore.ruleset.RoundController;
-import pss.rookscore.ruleset.RoundController.RoundState;
-import pss.rookscore.ruleset.RoundStateModel;
+import pss.rookscore.core.model.GameStateModel;
+import pss.rookscore.core.model.GameStateModel.RoundResult;
+import pss.rookscore.core.model.Player;
+import pss.rookscore.core.ruleset.RookRuleSet;
+import pss.rookscore.core.ruleset.RoundController;
+import pss.rookscore.core.ruleset.RoundController.RoundState;
+import pss.rookscore.core.ruleset.RoundStateModel;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.Animator.AnimatorListener;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
@@ -303,7 +297,7 @@ public class PlayRoundActivity extends Activity implements PlayerSelectionListen
     private String getRoundSummaryString() {
         RoundResult roundResult = mRoundController.getRoundState().getRoundResult();
         StringBuilder sb = new StringBuilder();
-        ViewUtilities.summarizeCompleteRoundResult(sb, roundResult, mModel.getPlayers());
+        ModelUtilities.summarizeCompleteRoundResult(sb, roundResult, mModel.getPlayers());
         return sb.toString();
     }
     

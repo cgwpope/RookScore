@@ -12,12 +12,11 @@ import java.util.List;
 
 import pss.rookscore.modules.local_players.LocalPlayerModule;
 import pss.rookscore.modules.remote_players.RemotePlayerModule;
-import pss.rookscore.ruleset.AllanFourPlayerRookRuleSet;
-import pss.rookscore.ruleset.CambridgeFivePlayerRookRuleSet;
-import pss.rookscore.ruleset.CambridgeFourPlayerRookRuleSet;
-import pss.rookscore.ruleset.CambridgeSixPlayerRookRuleSet;
-import pss.rookscore.ruleset.RookRuleSet;
-import pss.rookscore.ruleset.RoundController;
+import pss.rookscore.core.ruleset.AllanFourPlayerRookRuleSet;
+import pss.rookscore.core.ruleset.CambridgeFivePlayerRookRuleSet;
+import pss.rookscore.core.ruleset.CambridgeFourPlayerRookRuleSet;
+import pss.rookscore.core.ruleset.CambridgeSixPlayerRookRuleSet;
+import pss.rookscore.core.ruleset.RookRuleSet;
 
 public class RookScoreApplication extends Application implements SharedPreferences.OnSharedPreferenceChangeListener {
     
@@ -80,7 +79,10 @@ public class RookScoreApplication extends Application implements SharedPreferenc
         if(sharedPref.getBoolean(SettingsActivity.ENABLE_WEB_API_KEY, false)){
             Module m = new RemotePlayerModule(
                     sharedPref.getString(SettingsActivity.WEB_PLAYER_LIST_URL, "http://rook2.chruszcz.ca/api/players"),
-                    sharedPref.getString(SettingsActivity.WEB_GAME_LIST_URL, "http://rook2.chruszcz.ca/api/games/"));
+                    sharedPref.getString(SettingsActivity.WEB_GAME_LIST_URL, "http://rook2.chruszcz.ca/api/games/"),
+                    sharedPref.getString(SettingsActivity.WEB_API_USERNAME_KEY, ""),
+                    sharedPref.getString(SettingsActivity.WEB_API_PASSWORD_KEY, "")
+                    );
             mModules.add(m);
             m.initialize(this);
         }

@@ -2,34 +2,30 @@ package pss.rookscore.modules.remote_players;
 
 import com.google.common.eventbus.Subscribe;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import ca.cgwpope.jsonobjectwrapper.JSONObjectFactoryImpl;
-import ca.cgwpope.jsonobjectwrapper.UnderscoreSeparationJSONNamingStrategy;
 import pss.rookscore.RookScoreApplication;
-import pss.rookscore.events.GameOverEvent;
-import pss.rookscore.events.PlayerAddedEvent;
-import pss.rookscore.events.PlayerLoadRequestEvent;
-import pss.rookscore.events.PlayersRemovedEvent;
-import pss.rookscore.fragments.views.ViewUtilities;
-import pss.rookscore.model.GameStateModel;
-import pss.rookscore.model.Player;
-import pss.rookscore.model.RoundSummary;
+import pss.rookscore.core.model.GameStateModel;
+import pss.rookscore.core.model.Player;
+import pss.rookscore.core.model.RoundSummary;
+import pss.rookscore.core.events.GameOverEvent;
+import pss.rookscore.core.events.PlayerLoadRequestEvent;
+import pss.rookscore.core.webapi.RemoteGame;
+import pss.rookscore.core.webapi.RemotePlayer;
+import pss.rookscore.core.webapi.WebApiHelper;
+import pss.rookscore.core.webapi.WebApiPlayer;
 
 public class RemotePlayerModule implements RookScoreApplication.Module {
+    private final String mUsername;
+    private final String mPassword;
     private RookScoreApplication mApplication;
     private String mPlayerAPIURL;
     private String mGameAPIUrl;
@@ -37,9 +33,13 @@ public class RemotePlayerModule implements RookScoreApplication.Module {
     //register the appropriate event listeners
     //When player list load is requested, populate with entries from local store
 
-    public RemotePlayerModule(String playerAPIURL, String gameAPIURL) {
+
+    public RemotePlayerModule(String playerAPIURL, String gameAPIURL, String username, String password) {
         mPlayerAPIURL = playerAPIURL;
         mGameAPIUrl = gameAPIURL;
+        mUsername  = username;
+        mPassword = password;
+
     }
 
 
@@ -63,10 +63,8 @@ public class RemotePlayerModule implements RookScoreApplication.Module {
                     final String json = readJSON(new URL(mPlayerAPIURL));
                     RemotePlayer[] players = new WebApiHelper().parseRemotePlayers(json);
                     for (RemotePlayer player : players) {
-                        ev.getPlayerSink().addPlayer(new WebApiPlayer(player.getFirstName(), player.getLastName(), player.getPlayerId()));
+                        ev.getPlayerSink().addPlayer(new WebApiPlayer(player.getFirstName(), player.getLastName(), player.getId(), player.getPlayerId()));
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace(System.out);
                 } catch (IOException e) {
                     e.printStackTrace(System.out);
                 }
@@ -79,6 +77,9 @@ public class RemotePlayerModule implements RookScoreApplication.Module {
 
     @Subscribe
     public void handleGameFinished(GameOverEvent ev) {
+
+        //Todo: push this into webapihelper
+
         if (ev.getGameModel() == null) {
             return;
         }
@@ -96,22 +97,11 @@ public class RemotePlayerModule implements RookScoreApplication.Module {
 
             final RemoteGame rg = new WebApiHelper().buildWebServiceGame(lastRoundScores, rounds);
 
-
             //post the game results to website
             new Thread() {
                 public void run() {
                     try {
-                        HttpURLConnection connection = (HttpURLConnection) new URL(mGameAPIUrl).openConnection();
-                        connection.setDoInput(true);
-                        connection.setDoOutput(true);
-                        connection.setRequestMethod("POST");
-                        connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-                        connection.setRequestProperty("Accept", "application/json");
-
-                        try (Writer w = new OutputStreamWriter(connection.getOutputStream())) {
-                            w.append(rg.getDelegate().toString());
-                        }
-
+                        new WebApiHelper().submitRemoteGame(mGameAPIUrl, mUsername, mPassword, rg);
                     } catch (IOException e) {
                         e.printStackTrace(System.out);
                     }
@@ -120,6 +110,7 @@ public class RemotePlayerModule implements RookScoreApplication.Module {
         }
 
     }
+
 
 
 

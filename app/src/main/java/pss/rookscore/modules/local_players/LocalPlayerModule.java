@@ -10,10 +10,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import pss.rookscore.RookScoreApplication;
-import pss.rookscore.events.PlayerAddedEvent;
-import pss.rookscore.events.PlayerLoadRequestEvent;
-import pss.rookscore.events.PlayersRemovedEvent;
-import pss.rookscore.model.Player;
+import pss.rookscore.core.events.PlayerAddedEvent;
+import pss.rookscore.core.events.PlayerLoadRequestEvent;
+import pss.rookscore.core.events.PlayersRemovedEvent;
+import pss.rookscore.core.model.Player;
 
 public class LocalPlayerModule implements RookScoreApplication.Module {
     private RookScoreApplication mApplication;

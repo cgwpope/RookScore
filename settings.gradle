@@ -1,1 +1,1 @@
-include ':app', ':seekarc', ':jsonwrapper'
+include ':app', ':seekarc', ':jsonwrapper', ':rookscore-core'

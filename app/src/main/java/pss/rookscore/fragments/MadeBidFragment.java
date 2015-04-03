@@ -1,7 +1,7 @@
 package pss.rookscore.fragments;
 
 import pss.rookscore.R;
-import pss.rookscore.ruleset.RookRuleSet;
+import pss.rookscore.core.ruleset.RookRuleSet;
 import android.graphics.Color;
 import android.text.Spannable;
 import android.text.SpannableString;

@@ -2,14 +2,14 @@
 package pss.rookscore.fragments.views;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import pss.rookscore.model.GameStateModel;
-import pss.rookscore.model.Player;
-import pss.rookscore.model.RoundSummary;
+import pss.rookscore.core.model.GameStateModel;
+import pss.rookscore.core.model.ModelUtilities;
+import pss.rookscore.core.model.Player;
+import pss.rookscore.core.model.RoundSummary;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -189,19 +189,19 @@ public class ScoresheetHeaderView extends View {
         //sort in order of score, if possible
 
         if(mRoundScores.size() > 0){
-            ViewUtilities.sortPlayerNames(mPlayerNames, mModel.getRounds(), mRoundScores);
+            ModelUtilities.sortPlayerNames(mPlayerNames, mModel.getRounds(), mRoundScores);
         }
 
         
         mShorterPlayerNames = new ArrayList<String>();
         for(int i = 0; i < mPlayerNames.size(); i++){
-            mShorterPlayerNames.add(ViewUtilities.shorterName(mPlayerNames, mPlayerNames.get(i)));
+            mShorterPlayerNames.add(ModelUtilities.shorterName(mPlayerNames, mPlayerNames.get(i)));
         }
         
         
         mPlayerHasWonRounds = new boolean[mPlayerNames.size()];
         for(int i = 0; i < mPlayerNames.size(); i++){
-            mPlayerHasWonRounds[i] = ViewUtilities.playerHasWonARound(mPlayerNames.get(i), mModel.getRounds());
+            mPlayerHasWonRounds[i] = ModelUtilities.playerHasWonARound(mPlayerNames.get(i), mModel.getRounds());
         }
 
         

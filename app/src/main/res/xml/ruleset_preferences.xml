@@ -8,7 +8,7 @@
     android:summary="@string/four_player_ruleset_desc"
     android:entryValues="@array/ruleset_pref_values"
     android:entries="@array/ruleset_pref_names"
-    android:defaultValue="pss.rookscore.ruleset.CambridgeFourPlayerRookRuleSet"
+    android:defaultValue="pss.rookscore.core.ruleset.CambridgeFourPlayerRookRuleSet"
 
         />
 

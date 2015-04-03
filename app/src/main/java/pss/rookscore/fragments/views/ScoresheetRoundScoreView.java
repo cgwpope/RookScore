@@ -4,9 +4,10 @@ package pss.rookscore.fragments.views;
 import java.util.ArrayList;
 import java.util.List;
 
-import pss.rookscore.model.GameStateModel;
-import pss.rookscore.model.Player;
-import pss.rookscore.model.RoundSummary;
+import pss.rookscore.core.model.GameStateModel;
+import pss.rookscore.core.model.ModelUtilities;
+import pss.rookscore.core.model.Player;
+import pss.rookscore.core.model.RoundSummary;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -49,7 +50,7 @@ public class ScoresheetRoundScoreView extends View {
 
         // sort in order of score, if possible
         if (mRoundSummaries.size() > 0) {
-            ViewUtilities.sortPlayerNames(players, mModel.getRounds(), mRoundSummaries);
+            ModelUtilities.sortPlayerNames(players, mModel.getRounds(), mRoundSummaries);
         }
 
         if (players != null && players.size() > 0) {

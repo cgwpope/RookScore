@@ -51,8 +51,8 @@
     <string name="four_player_ruleset_desc">Select the rules to use for four-player games.</string>
 
     <string-array name="ruleset_pref_values">
-        <item>pss.rookscore.ruleset.CambridgeFourPlayerRookRuleSet</item>
-        <item>pss.rookscore.ruleset.AllanFourPlayerRookRuleSet</item>
+        <item>pss.rookscore.core.ruleset.CambridgeFourPlayerRookRuleSet</item>
+        <item>pss.rookscore.core.ruleset.AllanFourPlayerRookRuleSet</item>
     </string-array>
 
     <string-array name="ruleset_pref_names">

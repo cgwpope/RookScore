@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import pss.rookscore.events.BluetoothBroadcastStartedEvent;
-import pss.rookscore.events.GameOverEvent;
-import pss.rookscore.events.GameStateChangedEvent;
-import pss.rookscore.events.SpectatorsChangedEvent;
+import pss.rookscore.core.events.BluetoothBroadcastStartedEvent;
+import pss.rookscore.core.events.GameOverEvent;
+import pss.rookscore.core.events.GameStateChangedEvent;
+import pss.rookscore.core.events.SpectatorsChangedEvent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;

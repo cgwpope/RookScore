@@ -3,9 +3,10 @@ package pss.rookscore.fragments.views;
 
 import java.util.List;
 
-import pss.rookscore.model.GameStateModel.RoundResult;
-import pss.rookscore.model.Player;
-import pss.rookscore.model.RoundSummary;
+import pss.rookscore.core.model.GameStateModel.RoundResult;
+import pss.rookscore.core.model.ModelUtilities;
+import pss.rookscore.core.model.Player;
+import pss.rookscore.core.model.RoundSummary;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.LinearGradient;
@@ -106,7 +107,7 @@ public class SingleLineDrawStrategy implements DrawStrategy {
     }
 
     private void summarizeRoundResult(StringBuilder roundSummaryText, RoundResult roundResult,List<Player> playerS) {
-        ViewUtilities.summarizeCompleteRoundResult(roundSummaryText, roundResult, mPlayers);
+        ModelUtilities.summarizeCompleteRoundResult(roundSummaryText, roundResult, mPlayers);
     }
     
     @Override

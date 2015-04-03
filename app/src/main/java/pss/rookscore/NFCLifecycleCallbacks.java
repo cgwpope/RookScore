@@ -2,7 +2,7 @@ package pss.rookscore;
 
 import java.nio.charset.Charset;
 
-import pss.rookscore.events.BluetoothBroadcastStartedEvent;
+import pss.rookscore.core.events.BluetoothBroadcastStartedEvent;
 import android.app.Activity;
 import android.app.Application.ActivityLifecycleCallbacks;
 import android.nfc.NdefMessage;

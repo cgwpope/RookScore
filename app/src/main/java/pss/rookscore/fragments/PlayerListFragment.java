@@ -1,10 +1,6 @@
 
 package pss.rookscore.fragments;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import android.app.Fragment;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -23,8 +19,12 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import pss.rookscore.R;
-import pss.rookscore.model.Player;
+import pss.rookscore.core.model.Player;
 
 public class PlayerListFragment extends Fragment {
 

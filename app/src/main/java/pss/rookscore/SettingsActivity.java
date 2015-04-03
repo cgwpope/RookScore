@@ -14,6 +14,8 @@ public class SettingsActivity extends PreferenceActivity {
     public static final String ENABLE_WEB_API_KEY = "enable_web_api";
     public static final String WEB_PLAYER_LIST_URL = "web_player_list_url";
     public static final String WEB_GAME_LIST_URL = "web_game_list_url";
+    public static final String WEB_API_USERNAME_KEY = "web_api_username";
+    public static final String WEB_API_PASSWORD_KEY = "web_api_password";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,8 +54,8 @@ public class SettingsActivity extends PreferenceActivity {
             String editTextPrefIDs[] = {
                     WEB_PLAYER_LIST_URL,
                     WEB_GAME_LIST_URL,
-                    "web_api_username",
-                    "web_api_password"
+                    WEB_API_USERNAME_KEY,
+                    WEB_API_PASSWORD_KEY
             };
 
             for(String editPrefID : editTextPrefIDs){

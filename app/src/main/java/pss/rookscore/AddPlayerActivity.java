@@ -1,33 +1,26 @@
 
 package pss.rookscore;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import pss.rookscore.events.PlayerAddedEvent;
-import pss.rookscore.events.PlayerLoadRequestEvent;
-import pss.rookscore.events.PlayersRemovedEvent;
-import pss.rookscore.fragments.PlayerListFragment;
-import pss.rookscore.fragments.PlayerListFragment.PlayerSelectionListener;
-import pss.rookscore.model.Player;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarActivity;
-import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.EditText;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import pss.rookscore.core.model.Player;
+import pss.rookscore.core.events.PlayerAddedEvent;
+import pss.rookscore.core.events.PlayerLoadRequestEvent;
+import pss.rookscore.core.events.PlayersRemovedEvent;
+import pss.rookscore.fragments.PlayerListFragment;
+import pss.rookscore.fragments.PlayerListFragment.PlayerSelectionListener;
 
 public class AddPlayerActivity extends Activity implements PlayerSelectionListener {
 

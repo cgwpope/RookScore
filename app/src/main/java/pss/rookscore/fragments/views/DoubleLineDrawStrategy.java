@@ -2,8 +2,9 @@ package pss.rookscore.fragments.views;
 
 import java.util.List;
 
-import pss.rookscore.model.Player;
-import pss.rookscore.model.RoundSummary;
+import pss.rookscore.core.model.ModelUtilities;
+import pss.rookscore.core.model.Player;
+import pss.rookscore.core.model.RoundSummary;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -53,14 +54,14 @@ public class DoubleLineDrawStrategy implements DrawStrategy {
         //we are ready to draw the first line
         
          StringBuilder roundSummaryText = new StringBuilder();
-         ViewUtilities.summarizeFirstLineRoundSummary(roundSummaryText, mPlayers, summary.getRoundResult());
+         ModelUtilities.summarizeFirstLineRoundSummary(roundSummaryText, mPlayers, summary.getRoundResult());
         
          c.drawText(roundSummaryText.toString(), 0, -ViewUtilities.scaleText(context, 4), mPaint);
          
          c.translate(0, ViewUtilities.computeLineHeight(mContext, mPaint));
          
          roundSummaryText.setLength(0);
-         ViewUtilities.summarizeSecondLineRoundResult(roundSummaryText, mPlayers, summary.getRoundResult());
+         ModelUtilities.summarizeSecondLineRoundResult(roundSummaryText, mPlayers, summary.getRoundResult());
          c.drawText(roundSummaryText.toString(), 0, -ViewUtilities.scaleText(context, 4), mPaint);
          
          
@@ -103,12 +104,12 @@ public class DoubleLineDrawStrategy implements DrawStrategy {
         StringBuilder roundSummaryText = new StringBuilder();
         
         for (RoundSummary roundSummary : roundSummaries) {
-            ViewUtilities.summarizeFirstLineRoundSummary(roundSummaryText, mPlayers, roundSummary.getRoundResult());
+            ModelUtilities.summarizeFirstLineRoundSummary(roundSummaryText, mPlayers, roundSummary.getRoundResult());
            
             maxWidth = Math.max(maxWidth, mPaint.measureText(roundSummaryText.toString()));
             
             roundSummaryText.setLength(0);
-            ViewUtilities.summarizeSecondLineRoundResult(roundSummaryText, mPlayers, roundSummary.getRoundResult());
+            ModelUtilities.summarizeSecondLineRoundResult(roundSummaryText, mPlayers, roundSummary.getRoundResult());
             maxWidth = Math.max(maxWidth, mPaint.measureText(roundSummaryText.toString()));
             roundSummaryText.setLength(0);
 

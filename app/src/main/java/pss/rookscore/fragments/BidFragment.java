@@ -3,7 +3,7 @@ package pss.rookscore.fragments;
 
 import pss.rookscore.PlayRoundActivity;
 import pss.rookscore.R;
-import pss.rookscore.ruleset.RookRuleSet;
+import pss.rookscore.core.ruleset.RookRuleSet;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.text.Spannable;

@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/RookScore.iml" filepath="$PROJECT_DIR$/RookScore.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/jsonwrapper/jsonwrapper.iml" filepath="$PROJECT_DIR$/jsonwrapper/jsonwrapper.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rookscore-core/rookscore-core.iml" filepath="$PROJECT_DIR$/rookscore-core/rookscore-core.iml" />
       <module fileurl="file://$PROJECT_DIR$/seekarc/seekarc.iml" filepath="$PROJECT_DIR$/seekarc/seekarc.iml" />
     </modules>
   </component>

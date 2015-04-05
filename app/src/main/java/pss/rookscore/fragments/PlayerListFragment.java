@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import pss.rookscore.AddPlayerActivity;
 import pss.rookscore.R;
 import pss.rookscore.core.model.Player;
 
@@ -56,7 +57,10 @@ public class PlayerListFragment extends Fragment {
     private boolean mUseMultiSelect = true;
 
     private PlayerListMultiChoiceModeListener mMultiselectlistener;
-    
+
+    private PlayerSelectionListener mPlayerListSelectionListener;
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.player_list_fragment, container, false);
@@ -82,18 +86,9 @@ public class PlayerListFragment extends Fragment {
 
                     @Override
                     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                        ((PlayerSelectionListener) getActivity()).playerSelected(Collections.singletonList(mListAdapter.getItem(arg2)));
+                        mPlayerListSelectionListener.playerSelected(Collections.singletonList(mListAdapter.getItem(arg2)));
                     }
                 });
-
-        
-        if(mUseMultiSelect){
-            mPlayerListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-            mMultiselectlistener = new PlayerListMultiChoiceModeListener(getActivity(), mPlayerListView);
-            mPlayerListView.setMultiChoiceModeListener(mMultiselectlistener);
-        }
-        
-        
 
         
         mGestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
@@ -128,7 +123,7 @@ public class PlayerListFragment extends Fragment {
                             if(e2.getY() <= bottomRightY){
                                 //ok, we've found the list item that the fling was on. Translate to a model item and remove it
                                 Player itemAtPosition = (Player)mPlayerListView.getItemAtPosition(i);
-                                ((PlayerSelectionListener) getActivity()).playerRemoved(Collections.singletonList(itemAtPosition));
+                                mPlayerListSelectionListener.playerRemoved(Collections.singletonList(itemAtPosition));
                                 
                
                                 
@@ -202,9 +197,17 @@ public class PlayerListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        
-        if(!(getActivity() instanceof PlayerSelectionListener)){
-            throw new IllegalArgumentException("Parent activity must implement " + PlayerSelectionListener.class.getName());
+
+        //do this in onResume() so that parent activity/fragment has chance to assigned mPlayerListSelectionListener
+        if(mUseMultiSelect){
+            mPlayerListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+            mMultiselectlistener = new PlayerListMultiChoiceModeListener(mPlayerListSelectionListener, mPlayerListView);
+            mPlayerListView.setMultiChoiceModeListener(mMultiselectlistener);
+        }
+
+
+        if(mPlayerListSelectionListener == null){
+            throw new IllegalArgumentException("Parent activity or fragment must register a " + PlayerSelectionListener.class);
         }
 
         
@@ -239,6 +242,10 @@ public class PlayerListFragment extends Fragment {
     }
 
 
+
+    public void setPlayerListSelectionListener(PlayerSelectionListener playerListSelectionListener) {
+        mPlayerListSelectionListener = playerListSelectionListener;
+    }
 
     public void addPlayer(Player newPlayer) {
         mListAdapter.add(newPlayer);

@@ -15,6 +15,9 @@ public interface RemoteGame extends IJSONObjectWrapper {
     public void setScores(RemoteGameScore scores[]);
 
 
-    public String[] getBids();
-    public void setBids(String[] bids);
+    /*
+    Bids property is a bit of a misnomer, but roll with it..
+     */
+    public RemoteRound[] getBids();
+    public void setBids(RemoteRound[] bids);
 }

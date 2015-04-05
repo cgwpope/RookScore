@@ -62,6 +62,15 @@ public class ModelUtilities {
         return false;
     }
 
+
+
+    public static String summarizeCompleteRoundResult(GameStateModel.RoundResult roundResult, List<Player> players) {
+        StringBuilder sb = new StringBuilder();
+        ModelUtilities.summarizeCompleteRoundResult(sb, roundResult, players);
+        return sb.toString();
+    }
+
+
     public static void summarizeCompleteRoundResult(StringBuilder roundSummaryText, GameStateModel.RoundResult roundResult, List<Player> players) {
         summarizeFirstLineRoundSummary(roundSummaryText, players, roundResult);
         roundSummaryText.append(' ');

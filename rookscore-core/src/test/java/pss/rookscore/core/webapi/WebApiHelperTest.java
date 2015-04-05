@@ -1,7 +1,5 @@
 package pss.rookscore.core.webapi;
 
-import junit.framework.TestCase;
-
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -78,7 +76,7 @@ public class WebApiHelperTest  {
         final List<RoundSummary> roundSummaries = mGameStateModel.computeRoundScores();
         final RoundSummary lastRound = roundSummaries.get(roundSummaries.size() - 1);
 
-        final RemoteGame remoteGameModel = helper.buildWebServiceGame(lastRound.getRoundCumulativeScores(), mGameStateModel.getRounds());
+        final RemoteGame remoteGameModel = helper.buildWebServiceGame(mGameStateModel, lastRound.getRoundCumulativeScores(), mGameStateModel.getRounds());
 
 
         //test  that remoteGameModel looks OK
@@ -91,6 +89,6 @@ public class WebApiHelperTest  {
         System.out.println(remoteGameModel.getDelegate().toString(2));
 
 
-        helper.submitRemoteGame("http://rook2.chruszcz.ca/api/games/", "chris", "chrispope",remoteGameModel);
+        helper.submitRemoteGame("http://beta.rook2.chruszcz.ca/api/games/", "chris", "chrispope",remoteGameModel);
     }
 }

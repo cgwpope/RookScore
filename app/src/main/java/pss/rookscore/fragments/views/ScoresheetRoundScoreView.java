@@ -86,10 +86,14 @@ public class ScoresheetRoundScoreView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int width = View.MeasureSpec.getSize(widthMeasureSpec);
-        mDrawStrategy = DrawStrategyFactory.buildDrawStrategy(getContext(), mTextPaint, mModel.getPlayers(), getCachedRoundScores(), width);
-        mRoundSummaryWidth = mDrawStrategy.computeRoundSummaryWidth(mRoundSummaries);
-        setMeasuredDimension(width, (int)mDrawStrategy.computeHeight() + 5);
+        if(mModel == null){
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        } else {
+            int width = View.MeasureSpec.getSize(widthMeasureSpec);
+            mDrawStrategy = DrawStrategyFactory.buildDrawStrategy(getContext(), mTextPaint, mModel.getPlayers(), getCachedRoundScores(), width);
+            mRoundSummaryWidth = mDrawStrategy.computeRoundSummaryWidth(mRoundSummaries);
+            setMeasuredDimension(width, (int)mDrawStrategy.computeHeight() + 5);
+        }
     }
     
 

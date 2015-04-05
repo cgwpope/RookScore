@@ -167,12 +167,16 @@ public class ScoresheetHeaderView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int width = View.MeasureSpec.getSize(widthMeasureSpec);
-        mDrawStrategy = DrawStrategyFactory.buildDrawStrategy(getContext(), ViewUtilities.defaultTextPaint(getContext()), mModel.getPlayers(), mModel.computeRoundScores(), width);
+        if(mModel == null){
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        } else {
+            int width = View.MeasureSpec.getSize(widthMeasureSpec);
+            mDrawStrategy = DrawStrategyFactory.buildDrawStrategy(getContext(), ViewUtilities.defaultTextPaint(getContext()), mModel.getPlayers(), mModel.computeRoundScores(), width);
 
-        mCalculatedRoundSummaryWidth = mDrawStrategy.computeRoundSummaryWidth(mRoundScores);
+            mCalculatedRoundSummaryWidth = mDrawStrategy.computeRoundSummaryWidth(mRoundScores);
 
-        setMeasuredDimension(width, (int)ViewUtilities.computeLineHeight(getContext(), mPaint) * 2);
+            setMeasuredDimension(width, (int) ViewUtilities.computeLineHeight(getContext(), mPaint) * 2);
+        }
     }
 
     public void setGameStateModel(GameStateModel model) {

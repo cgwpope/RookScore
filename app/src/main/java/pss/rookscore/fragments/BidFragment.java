@@ -78,7 +78,7 @@ public class BidFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        if (!(getActivity() instanceof BidSelectionListener)) {
+        if (!(getParentFragment() instanceof BidSelectionListener)) {
             throw new IllegalArgumentException("Parent activity must implement " + BidSelectionListener.class.getName());
         }
 
@@ -124,7 +124,7 @@ public class BidFragment extends Fragment {
         mLabel.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((BidSelectionListener) getActivity()).bidSelected(mapProgressToBid(mSlider
+                ((BidSelectionListener) getParentFragment()).bidSelected(mapProgressToBid(mSlider
                         .getProgress()));
             }
         });
@@ -190,7 +190,7 @@ public class BidFragment extends Fragment {
 
         super.onCreateOptionsMenu(menu, inflater);
         
-        ((PlayRoundActivity)getActivity()).updateBidSummary();
+//        ((PlayRoundActivity)getActivity()).updateBidSummary();
 
     }
 }

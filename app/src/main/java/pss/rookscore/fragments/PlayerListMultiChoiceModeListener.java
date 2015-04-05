@@ -1,7 +1,6 @@
 
 package pss.rookscore.fragments;
 
-import android.app.Activity;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,11 +19,11 @@ class PlayerListMultiChoiceModeListener implements MultiChoiceModeListener {
 
     private ListView mListView;
     private ListAdapter mAdapter;
-    private Activity mActivity;
+    private PlayerSelectionListener mPlayerSelectionListener;
     private boolean mIgnoreFling;
 
-    public PlayerListMultiChoiceModeListener(Activity parentActivity, ListView lv) {
-        mActivity = parentActivity;
+    public PlayerListMultiChoiceModeListener(PlayerSelectionListener parentActivity, ListView lv) {
+        mPlayerSelectionListener = parentActivity;
         mListView = lv;
         mAdapter = mListView.getAdapter();
     }
@@ -51,11 +50,11 @@ class PlayerListMultiChoiceModeListener implements MultiChoiceModeListener {
         }
 
         if (item.getItemId() == R.id.addMultiplePlayers) {
-            ((PlayerSelectionListener) mActivity).playerSelected(selectedPlayers);
+            mPlayerSelectionListener.playerSelected(selectedPlayers);
             mode.finish();
             return true;
         } else if (item.getItemId() == R.id.deleteMultiplePlayers) {
-            ((PlayerSelectionListener) mActivity).playerRemoved(selectedPlayers);
+            mPlayerSelectionListener.playerRemoved(selectedPlayers);
             mode.finish();
             return true;
         }

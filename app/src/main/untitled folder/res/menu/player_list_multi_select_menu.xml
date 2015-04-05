@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/addMultiplePlayers" android:title="@string/player_list_cab_add_multiple_players"  android:icon="@android:drawable/ic_menu_add" android:showAsAction="ifRoom|withText"></item>
-    <item android:id="@+id/deleteMultiplePlayers" android:icon="@android:drawable/ic_menu_delete" android:title="@string/player_list_cab_remote_multiple_players" android:titleCondensed="Remove" android:showAsAction="ifRoom|withText"></item>
-    
-
-</menu>

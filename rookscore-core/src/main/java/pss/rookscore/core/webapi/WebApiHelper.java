@@ -1,6 +1,8 @@
 package pss.rookscore.core.webapi;
 
 import com.google.common.io.ByteStreams;
+import com.google.common.primitives.Bytes;
+import com.google.common.primitives.Ints;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,7 +32,7 @@ import pss.rookscore.core.model.Player;
  */
 public class WebApiHelper {
 
-    public RemoteGame buildWebServiceGame(Map<Player, Integer> lastRoundScores, List<GameStateModel.RoundResult> rounds) {
+    public RemoteGame buildWebServiceGame(GameStateModel gameModel, Map<Player, Integer> lastRoundScores, List<GameStateModel.RoundResult> rounds) {
         JSONObjectFactoryImpl impl = new JSONObjectFactoryImpl(new UnderscoreSeparationJSONNamingStrategy(false));
         final RemoteGame rg = impl.newInstance(RemoteGame.class);
 
@@ -41,6 +43,7 @@ public class WebApiHelper {
         rg.setEnteredDate(sdf.format(new Date()));
 
 
+        //provide a scoring summary
         RemoteGameScore scores[] = new RemoteGameScore[lastRoundScores.size()];
         int i = 0;
         for (Map.Entry<Player, Integer> entry : lastRoundScores.entrySet()) {
@@ -50,13 +53,48 @@ public class WebApiHelper {
             player.setLastName(entry.getKey().getLastname());
             player.setId(((WebApiPlayer) entry.getKey()).getId());
             player.setPlayerId(((WebApiPlayer) entry.getKey()).getmPlayerID());
-            score.setPlayer(player);
+            score.setPlayer(player.getId());
             score.setScore(entry.getValue());
             score.setMadeBid(ModelUtilities.playerHasWonARound(entry.getKey(), rounds));
             scores[i++] = score;
         }
         rg.setScores(scores);
-        rg.setBids(new String[0]);
+
+        //now, provide the scoring history;
+        RemoteRound remoteRounds[] = new RemoteRound[rounds.size()];
+        for(i = 0; i < rounds.size(); i++){
+            RemoteRound rr = impl.newInstance(RemoteRound.class);
+            GameStateModel.RoundResult result = rounds.get(i);
+            rr.setCaller(result.getCaller().getId());
+
+            int partners[] = new int[result.getPartners().size()];
+            for(int j = 0; j < partners.length; j++){
+                partners[j] = result.getPartners().get(j).getId();
+            }
+
+
+            rr.setPartners(partners);
+            int opponents[] = new int[gameModel.getPlayers().size() - partners.length];
+            int j = 0;
+            for(Player p : gameModel.getPlayers()){
+                if(!Ints.contains(partners, p.getId())){
+                    opponents[j++] = p.getId();
+                }
+            }
+
+            rr.setOpponents(opponents);
+
+
+            rr.setPointsBid(result.getBid());
+            rr.setPointsMade(result.getMade());
+
+            rr.setHandNumber(i + 1);
+            remoteRounds[i] = rr;
+
+        }
+
+        rg.setBids(remoteRounds);
+
         return rg;
     }
 
@@ -64,9 +102,13 @@ public class WebApiHelper {
         CookieManager cookieManager = new CookieManager();
         CookieHandler.setDefault(cookieManager);
 
+        URL gameResourceURL = new URL(gamesResourceURL);
+        String authResourceURL = "http://" + gameResourceURL.getHost() + "/api-auth/login/";
+
+
         //to work around the security model, need to perform HTTP Get first - this will provide us with a CRSF token
         //so just GET from the game resource first
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://rook2.chruszcz.ca/api-auth/login/").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL(authResourceURL).openConnection();
         connection.setInstanceFollowRedirects(false);
         if(connection.getResponseCode() == HttpURLConnection.HTTP_OK){
 
@@ -79,7 +121,7 @@ public class WebApiHelper {
             String payload = "username=" + username + "&password="+password+"&csrfmiddlewaretoken=" + csrftoken;
 
 
-            connection = (HttpURLConnection) new URL("http://rook2.chruszcz.ca/api-auth/login/").openConnection();
+            connection = (HttpURLConnection) new URL(authResourceURL).openConnection();
             connection.setInstanceFollowRedirects(false);
             connection.setDoInput(true);
             connection.setDoOutput(true);

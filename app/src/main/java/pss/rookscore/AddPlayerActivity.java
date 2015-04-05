@@ -31,6 +31,9 @@ public class AddPlayerActivity extends Activity implements PlayerSelectionListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_player_activity);
+
+        ((PlayerListFragment)getFragmentManager().findFragmentById(R.id.playerListFragment)).setPlayerListSelectionListener(this);
+
     }
 
     @Override

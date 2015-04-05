@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewTreeObserver.OnPreDrawListener;
+import android.widget.TextView;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -20,12 +21,14 @@ import pss.rookscore.NFCLifecycleCallbacks.RookScoreNFCBroadcaster;
 import pss.rookscore.core.events.GameOverEvent;
 import pss.rookscore.core.events.GameStateChangedEvent;
 import pss.rookscore.core.events.SpectatorsChangedEvent;
+import pss.rookscore.core.model.ModelUtilities;
+import pss.rookscore.fragments.PlayRoundFragment;
 import pss.rookscore.fragments.ScoresheetFragment;
 import pss.rookscore.core.model.GameStateModel;
 import pss.rookscore.core.model.Player;
 import pss.rookscore.core.ruleset.RoundStateModel;
 
-public class GameActivity extends Activity implements RookScoreNFCBroadcaster {
+public class GameActivity extends Activity implements RookScoreNFCBroadcaster, PlayRoundFragment.PlayRoundFragmentParent {
 
     private static final String GAME_STATE_MODEL_KEY = GameActivity.class.getName() + ".GameStateModel";
 
@@ -40,12 +43,13 @@ public class GameActivity extends Activity implements RookScoreNFCBroadcaster {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.game_activity);
-
 
         Player players[] = (Player[]) getIntent().getSerializableExtra(PLAYER_LIST_KEY);
         mGameModel.getPlayers().clear();
         Collections.addAll(mGameModel.getPlayers(), players);
+
+        setContentView(R.layout.game_activity);
+
     }
 
     @Override
@@ -77,21 +81,29 @@ public class GameActivity extends Activity implements RookScoreNFCBroadcaster {
 
     @Override
     public void onBackPressed() {
-        new AlertDialog.Builder(this)
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle(R.string.game_activity_end_game_dialog_title)
-                .setMessage(R.string.game_activity_end_game_dialog_message)
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        endGame();
-                        GameActivity.super.onBackPressed();
-                    }
+        PlayRoundFragment playRoundFragment = (PlayRoundFragment)getFragmentManager().findFragmentById(R.id.playerRoundFragment);
+        if(playRoundFragment != null && playRoundFragment.backPressed()){
+            return;
+        } else {
+            new AlertDialog.Builder(this)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle(R.string.game_activity_end_game_dialog_title)
+                    .setMessage(R.string.game_activity_end_game_dialog_message)
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            endGame();
+                            GameActivity.super.onBackPressed();
+                        }
 
-                })
-                .setNegativeButton(R.string.no, null)
-                .show();
+                    })
+                    .setNegativeButton(R.string.no, null)
+                    .show();
+
+        }
+
+
     }
 
     protected void endGame() {
@@ -100,7 +112,10 @@ public class GameActivity extends Activity implements RookScoreNFCBroadcaster {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.game_activity, menu);
+        //only if PlayRoundFragment is not present as a child
+        if(getFragmentManager().findFragmentById(R.id.playerRoundFragment) == null){
+            getMenuInflater().inflate(R.menu.game_activity, menu);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -144,10 +159,9 @@ public class GameActivity extends Activity implements RookScoreNFCBroadcaster {
         if (requestCode == PLAY_ROUND_REQUEST) {
             if (resultCode == RESULT_OK) {
                 // build up a new round from the intend
-                RoundStateModel rsm = (RoundStateModel) data.getSerializableExtra(PlayRoundActivity.ROUND_STATE_MODEL);
-                mGameModel.getRounds().add(rsm.getRoundResult());
+                RoundStateModel rsm = (RoundStateModel) data.getSerializableExtra(PlayRoundFragment.ROUND_STATE_MODEL);
 
-                mEventBus.post(new GameStateChangedEvent(mGameModel));
+                doneRound(rsm);
 
                 // onResume() will be called since we're just about to show view
                 // -
@@ -171,6 +185,7 @@ public class GameActivity extends Activity implements RookScoreNFCBroadcaster {
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -197,4 +212,52 @@ public class GameActivity extends Activity implements RookScoreNFCBroadcaster {
         mEventBus.post(new GameStateChangedEvent(mGameModel));
     }
 
+    private void doneRound(RoundStateModel rsm) {
+        mGameModel.getRounds().add(rsm.getRoundResult());
+        mEventBus.post(new GameStateChangedEvent(mGameModel));
+    }
+
+
+    @Override
+    public GameStateModel getGameStateModel() {
+        return mGameModel;
+    }
+
+    @Override
+    public void setTitle(String title) {
+        super.setTitle(title);
+    }
+
+
+
+    @Override
+    public void doneRound() {
+        //only called when PlayRoundFragment is a child of this activity
+        PlayRoundFragment playRoundFragment = (PlayRoundFragment)getFragmentManager().findFragmentById(R.id.playerRoundFragment);
+        if(playRoundFragment != null){
+            doneRound(playRoundFragment.getRoundController().getRoundState());
+            playRoundFragment.startNewRound();
+
+            ScoresheetFragment scoresheetFragment = (ScoresheetFragment) getFragmentManager().findFragmentById(R.id.scoresheetFragment);
+            scoresheetFragment.setGameStateModel(mGameModel);
+        }
+
+    }
+
+    @Override
+    public void updateBidSummary() {
+        //only called when PlayRoundFragment is a child of this activity and round summary textview is available
+        PlayRoundFragment playRoundFragment = (PlayRoundFragment)getFragmentManager().findFragmentById(R.id.playerRoundFragment);
+        TextView roundSummaryText = (TextView)findViewById(R.id.roundSummaryText);
+        if(roundSummaryText != null && playRoundFragment != null){
+            GameStateModel.RoundResult roundResult = playRoundFragment.getRoundController().getRoundState().getRoundResult();
+            roundSummaryText.setText("Bid: " + ModelUtilities.summarizeCompleteRoundResult(roundResult, mGameModel.getPlayers()));
+        }
+
+    }
+
+    @Override
+    public void broadcastGameState() {
+
+    }
 }

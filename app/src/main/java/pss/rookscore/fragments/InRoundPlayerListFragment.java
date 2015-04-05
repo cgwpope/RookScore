@@ -18,7 +18,8 @@ public class InRoundPlayerListFragment extends PlayerListFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        ((PlayRoundActivity)getActivity()).updateBidSummary();
+
+//        ((PlayRoundActivity)getActivity()).updateBidSummary();
     }
     
 }

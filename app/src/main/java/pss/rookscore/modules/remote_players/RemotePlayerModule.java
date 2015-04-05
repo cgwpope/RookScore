@@ -95,7 +95,7 @@ public class RemotePlayerModule implements RookScoreApplication.Module {
             final List<GameStateModel.RoundResult> rounds = ev.getGameModel().getRounds();
 
 
-            final RemoteGame rg = new WebApiHelper().buildWebServiceGame(lastRoundScores, rounds);
+            final RemoteGame rg = new WebApiHelper().buildWebServiceGame(ev.getGameModel(), lastRoundScores, rounds);
 
             //post the game results to website
             new Thread() {

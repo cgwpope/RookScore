@@ -130,16 +130,20 @@ public class ScoresheetFragment extends Fragment {
     }
 
     public void setGameStateModel(GameStateModel model) {
-        // update the view
-        ((ScoresheetHeaderView) getView().findViewById(R.id.scoresheetHeaderView)).setGameStateModel(model);
+        if(getView() != null){
+            // update the view
+            ((ScoresheetHeaderView) getView().findViewById(R.id.scoresheetHeaderView)).setGameStateModel(model);
 
-        mGameStateModel = model;
+            mGameStateModel = model;
 
-        scoreUpdated();
+            scoreUpdated();
 
-        // ensure the last row is always visible when updating game state
-        ListView lv = (ListView) getView().findViewById(R.id.roundScoreListview);
-        lv.smoothScrollToPosition(mListAdapter.getCount() - 1);
+            // ensure the last row is always visible when updating game state
+            ListView lv = (ListView) getView().findViewById(R.id.roundScoreListview);
+            lv.smoothScrollToPosition(mListAdapter.getCount() - 1);
+        } else {
+            //transitioning away from this fragment
+        }
 
     }
 

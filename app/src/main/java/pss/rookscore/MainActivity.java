@@ -71,6 +71,8 @@ public class MainActivity extends Activity implements PlayerSelectionListener {
             nfcAdapter.setNdefPushMessage(null, this);
         }
 
+
+        ((PlayerListFragment)getFragmentManager().findFragmentById(R.id.playerListFragment)).setPlayerListSelectionListener(this);
     }
 
     @Override

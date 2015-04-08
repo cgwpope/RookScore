@@ -55,7 +55,7 @@ public class PlayRoundActivity extends Activity implements  PlayRoundFragment.Pl
 
     @Override
     public void setTitle(String title) {
-
+        super.setTitle(title);
     }
 
     @Override
@@ -120,6 +120,7 @@ public class PlayRoundActivity extends Activity implements  PlayRoundFragment.Pl
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.play_round_menu, menu);
         mBidSummaryMenuItem = menu.findItem(R.id.bidSummaryHolder);
+        updateBidSummary();
         return true;
     }
     

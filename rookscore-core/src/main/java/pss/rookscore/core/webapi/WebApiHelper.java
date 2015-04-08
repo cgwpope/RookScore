@@ -74,10 +74,10 @@ public class WebApiHelper {
 
 
             rr.setPartners(partners);
-            int opponents[] = new int[gameModel.getPlayers().size() - partners.length];
+            int opponents[] = new int[gameModel.getPlayers().size() - partners.length - 1];
             int j = 0;
             for(Player p : gameModel.getPlayers()){
-                if(!Ints.contains(partners, p.getId())){
+                if(!Ints.contains(partners, p.getId()) && p.getId() != result.getCaller().getId()){
                     opponents[j++] = p.getId();
                 }
             }

@@ -6,3 +6,8 @@ dependencies {
     compile 'com.google.guava:guava:18.0'
     testCompile 'junit:junit:4.12'
 }
+
+compileJava {
+    targetCompatibility = 1.7
+    sourceCompatibility = 1.7
+}

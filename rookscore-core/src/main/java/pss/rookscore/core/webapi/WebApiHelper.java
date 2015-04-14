@@ -53,7 +53,7 @@ public class WebApiHelper {
             player.setLastName(entry.getKey().getLastname());
             player.setId(((WebApiPlayer) entry.getKey()).getId());
             player.setPlayerId(((WebApiPlayer) entry.getKey()).getmPlayerID());
-            score.setPlayer(player.getId());
+            score.setPlayer(player);
             score.setScore(entry.getValue());
             score.setMadeBid(ModelUtilities.playerHasWonARound(entry.getKey(), rounds));
             scores[i++] = score;

@@ -51,7 +51,7 @@ public class AddPlayerActivity extends Activity implements PlayerSelectionListen
             
             alert.setMessage(R.string.add_player_new_player_dialog_message);
 
-            alert.setView(R.layout.add_player_dialog);
+            alert.setView(getLayoutInflater().inflate(R.layout.add_player_dialog, null));
 
             // Set an EditText view to get user input
             alert.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {

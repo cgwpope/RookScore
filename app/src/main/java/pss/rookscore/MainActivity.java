@@ -140,9 +140,11 @@ public class MainActivity extends Activity implements PlayerSelectionListener {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == GET_PLAYER_TO_ADD && resultCode == RESULT_OK) {
-            Player players[] = (Player[])data.getSerializableExtra(AddPlayerActivity.ADD_PLAYER_RESULT_KEY);
-            for (Player player : players) {
-                addPlayer(player);                
+
+
+            Object o[] = (Object[])data.getSerializableExtra(AddPlayerActivity.ADD_PLAYER_RESULT_KEY);
+            for (Object player : o) {
+                addPlayer((Player)player);
             }
         }
 

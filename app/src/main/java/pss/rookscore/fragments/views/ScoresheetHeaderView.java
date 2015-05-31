@@ -219,7 +219,9 @@ public class ScoresheetHeaderView extends View {
 
         mShorterPlayerNames = new ArrayList<String>();
         for(int i = 0; i < players.size(); i++){
-            mShorterPlayerNames.add(ModelUtilities.shorterName(players, players.get(i)));
+            mScratchStringBuilder.setLength(0);
+            ModelUtilities.writeShorterName(mScratchStringBuilder, players, players.get(i));
+            mShorterPlayerNames.add(mScratchStringBuilder.toString());
         }
 
 

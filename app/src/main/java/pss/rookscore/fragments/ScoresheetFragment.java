@@ -1,15 +1,6 @@
 
 package pss.rookscore.fragments;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import pss.rookscore.GameActivity;
-import pss.rookscore.R;
-import pss.rookscore.fragments.views.ScoresheetHeaderView;
-import pss.rookscore.fragments.views.ScoresheetRoundScoreView;
-import pss.rookscore.core.model.GameStateModel;
-import pss.rookscore.core.model.RoundSummary;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.annotation.SuppressLint;
@@ -31,12 +22,33 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.google.common.base.Optional;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import pss.rookscore.GameActivity;
+import pss.rookscore.R;
+import pss.rookscore.core.model.GameStateModel;
+import pss.rookscore.core.model.ModelUtilities;
+import pss.rookscore.core.model.Player;
+import pss.rookscore.core.model.RoundSummary;
+import pss.rookscore.fragments.views.DrawStrategy;
+import pss.rookscore.fragments.views.ScoresheetHeaderView;
+import pss.rookscore.fragments.views.ScoresheetRoundScoreView;
+
 @SuppressLint("NewApi")
 public class ScoresheetFragment extends Fragment {
 
     private GameStateModel mGameStateModel;
+    private List<Player> mSortedPlayerList;
+
     private ArrayAdapter<RoundSummary> mListAdapter;
     private List<RoundSummary> mComputeRoundScores;
+
+    private ScoresheetRoundScoreView.DrawStrategyHolder mSharedDrawStrategyHolder = new ScoresheetRoundScoreView.DrawStrategyHolder();
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -110,18 +122,22 @@ public class ScoresheetFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mListAdapter = new ArrayAdapter<RoundSummary>(getActivity(), R.layout.round_score_row, new ArrayList<RoundSummary>()) {
             public View getView(int position, View convertView, ViewGroup parent) {
-                ScoresheetRoundScoreView shv = null;
+                ScoresheetRoundScoreView scoresheetRoundScoreView = null;
                 View v;
-                if (convertView != null && (shv = (ScoresheetRoundScoreView) convertView.findViewById(R.id.scoresheetHeaderView)) != null) {
+                if (convertView != null && (scoresheetRoundScoreView = (ScoresheetRoundScoreView) convertView.findViewById(R.id.scoresheetHeaderView)) != null) {
                     v = convertView;
                 } else {
                     LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     v = inflater.inflate(R.layout.round_score_row, parent, false);
-                    shv = (ScoresheetRoundScoreView) v.findViewById(R.id.scoresheetHeaderView);
+                    scoresheetRoundScoreView = (ScoresheetRoundScoreView) v.findViewById(R.id.scoresheetHeaderView);
+                    //players won't ever change.
                 }
-                shv.setGameStateModel(mGameStateModel);
-                shv.setRoundScores(mComputeRoundScores);
-                shv.setRound(position);
+
+                scoresheetRoundScoreView.setDrawStrategy(mSharedDrawStrategyHolder);
+                scoresheetRoundScoreView.setPlayers(mSortedPlayerList);
+                scoresheetRoundScoreView.setRoundScores(mComputeRoundScores);
+                scoresheetRoundScoreView.setRound(position);
+                scoresheetRoundScoreView.scoreUpdated();
 
                 return v;
             };
@@ -150,7 +166,14 @@ public class ScoresheetFragment extends Fragment {
     public void scoreUpdated() {
         ((ScoresheetHeaderView) getView().findViewById(R.id.scoresheetHeaderView)).scoreUpdated();
         mListAdapter.clear();
+
         mComputeRoundScores = mGameStateModel.computeRoundScores();
+        mSortedPlayerList = new ArrayList<>(mGameStateModel.getPlayers());
+        if(mGameStateModel.getRounds().size() > 0) {
+            ModelUtilities.sortPlayerNames(mSortedPlayerList, mGameStateModel.getRounds(), mGameStateModel.computeRoundScores());
+        }
+        mSharedDrawStrategyHolder.setDS(null);
+
         mListAdapter.addAll(mComputeRoundScores);
         
     }

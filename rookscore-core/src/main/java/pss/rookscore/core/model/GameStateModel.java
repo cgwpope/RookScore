@@ -108,7 +108,7 @@ public class GameStateModel implements Serializable {
     }
 
     private ArrayList<Player> mPlayers = new ArrayList<Player>();
-    private List<RoundResult> mRounds = new ArrayList<RoundResult>();
+    private ArrayList<RoundResult> mRounds = new ArrayList<RoundResult>();
 
     
     public GameStateModel() {

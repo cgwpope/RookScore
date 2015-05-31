@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
+import android.graphics.Shader;
 import android.graphics.Shader.TileMode;
 
 public class DoubleLineDrawStrategy implements DrawStrategy {
@@ -27,6 +28,8 @@ public class DoubleLineDrawStrategy implements DrawStrategy {
     private Paint mXMarkPaint;
 
     private final StringBuilder mScratchStringBuilder = new StringBuilder(100);
+    private final LinearGradient mSuccessGradient;
+    private final LinearGradient mFailedGradient;
 
 
     public DoubleLineDrawStrategy(Context context, Paint p, List<Player> players, List<RoundSummary> roundSummaries, int totalWidth) {
@@ -49,6 +52,11 @@ public class DoubleLineDrawStrategy implements DrawStrategy {
         mPlayers = players;
         mRoundSummaries = roundSummaries;
         mTotalWidth = totalWidth;
+
+
+        mSuccessGradient = new LinearGradient(0, 0, computeRoundSummaryWidth(mRoundSummaries), 0, 0x00006600, 0xff006600, TileMode.MIRROR);
+        mFailedGradient = new LinearGradient(0, 0, computeRoundSummaryWidth(mRoundSummaries), 0, 0x00ff0000, 0xffff0000, TileMode.MIRROR);
+
     }
 
     @Override
@@ -76,10 +84,10 @@ public class DoubleLineDrawStrategy implements DrawStrategy {
          Paint fillPaint;
          if(summary.getRoundResult().getMade() >= summary.getRoundResult().getBid()){
              fillPaint = mCheckMarkPaint;
-             fillPaint.setShader(new LinearGradient(0, 0, computeRoundSummaryWidth(mRoundSummaries), 0, 0x00006600, 0xff006600, TileMode.MIRROR));
+             fillPaint.setShader(mSuccessGradient);
          } else {
              fillPaint = mXMarkPaint;
-             fillPaint.setShader(new LinearGradient(0, 0, computeRoundSummaryWidth(mRoundSummaries), 0, 0x00ff0000, 0xffff0000, TileMode.MIRROR));
+             fillPaint.setShader(mFailedGradient);
          }
          
          c.drawRect(-ViewUtilities.scaleText(context, 4), -computeHeight() - ViewUtilities.scaleText(context, 4), computeRoundSummaryWidth(mRoundSummaries) + ViewUtilities.scaleText(context, 4), ViewUtilities.scaleText(context, 4), fillPaint);
@@ -108,8 +116,6 @@ public class DoubleLineDrawStrategy implements DrawStrategy {
     public float computeRoundSummaryWidth(List<RoundSummary> roundSummaries) {
         
         float maxWidth = 0;
-
-
 
         for (RoundSummary roundSummary : roundSummaries) {
             mScratchStringBuilder.setLength(0);

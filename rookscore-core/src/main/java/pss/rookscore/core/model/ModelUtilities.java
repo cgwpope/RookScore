@@ -10,21 +10,27 @@ import java.util.Set;
  * Created by cgwpope on 2015-04-03.
  */
 public class ModelUtilities {
-    public static String shorterName(List<Player> allPlayers, Player player) {
+
+    /**
+     *
+     * @param sb - StringBuilder that result will be appended to
+     * @param allPlayers
+     * @param player
+     */
+    public static void writeShorterName(StringBuilder sb, List<Player> allPlayers, Player player) {
 
         // go with initials
         // if conflict with another set of initials, add next letter from first
         // of each name section until no match
-        String nameParts[] = new String[] {player.getFirstname(), player.getLastname()};
-        StringBuilder initials = new StringBuilder();
 
-        for (String string : nameParts) {
-            if(string.length() > 0){
-                initials.append(string.charAt(0));
-            }
+        if(player.getFirstname().length() > 0){
+            sb.append(player.getFirstname().charAt(0));
         }
 
-        return initials.toString();
+        if(player.getLastname().length() > 0){
+            sb.append(player.getLastname().charAt(0));
+        }
+
     }
 
     public static void sortPlayerNames(List<Player> playerNames, final List<GameStateModel.RoundResult> roundResults, List<RoundSummary> roundScores) {
@@ -83,24 +89,30 @@ public class ModelUtilities {
             if (roundResult.getBid() > 0) {
 
                 // check for going alone
-                Set<Player> offense = new HashSet<Player>();
-                offense.add(roundResult.getCaller());
-                for (Player partner : roundResult.getPartners()) {
-                    offense.add(partner);
+//                Set<Player> offense = new HashSet<Player>();
+//                offense.add(roundResult.getCaller());
+
+                boolean hasPartner = false;
+                for (int i = 0; i < roundResult.getPartners().size(); i++) {
+                    if(!roundResult.getPartners().get(i).equals(roundResult.getCaller())){
+                        hasPartner = true;
+                        break;
+                    }
                 }
 
-                if (offense.size() == 1) {
+
+                if (!hasPartner) {
                     roundSummaryText.append(" -- ");
                 } else {
-                    offense.remove(roundResult.getCaller());
                     boolean firstPartner = true;
-                    for (Player partner : offense) {
+                    for (int i = 0; i < roundResult.getPartners().size(); i++) {
+                        Player partner = roundResult.getPartners().get(i);
                         if(!firstPartner){
                             roundSummaryText.append(',');
                         } else {
                             firstPartner = false;
                         }
-                        roundSummaryText.append(shorterName(playerNames, partner));
+                        writeShorterName(roundSummaryText, playerNames, partner);
                     }
                     roundSummaryText.append(" - ");
                 }
@@ -115,7 +127,8 @@ public class ModelUtilities {
 
     public static void summarizeFirstLineRoundSummary(StringBuilder roundSummaryText, List<Player> playerNames, GameStateModel.RoundResult roundResult) {
         if (roundResult.getCaller() != null) {
-            roundSummaryText.append(shorterName(playerNames, roundResult.getCaller())).append(' ');
+            writeShorterName(roundSummaryText, playerNames, roundResult.getCaller());
+            roundSummaryText.append(' ');
 
             if (roundResult.getBid() > 0) {
                 roundSummaryText.append('(').append(roundResult.getBid()).append(')');

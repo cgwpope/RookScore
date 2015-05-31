@@ -26,6 +26,9 @@ public class DoubleLineDrawStrategy implements DrawStrategy {
     private Paint mCheckMarkPaint;
     private Paint mXMarkPaint;
 
+    private final StringBuilder mScratchStringBuilder = new StringBuilder(100);
+
+
     public DoubleLineDrawStrategy(Context context, Paint p, List<Player> players, List<RoundSummary> roundSummaries, int totalWidth) {
         mContext = context;
 
@@ -57,17 +60,17 @@ public class DoubleLineDrawStrategy implements DrawStrategy {
     @Override
     public void drawRoundSummary(Context context, Canvas c, RoundSummary summary) {
         //we are ready to draw the first line
+
+        mScratchStringBuilder.setLength(0);
+         ModelUtilities.summarizeFirstLineRoundSummary(mScratchStringBuilder, mPlayers, summary.getRoundResult());
         
-         StringBuilder roundSummaryText = new StringBuilder();
-         ModelUtilities.summarizeFirstLineRoundSummary(roundSummaryText, mPlayers, summary.getRoundResult());
-        
-         c.drawText(roundSummaryText.toString(), 0, -ViewUtilities.scaleText(context, 4), mPaint);
+         c.drawText(mScratchStringBuilder, 0, mScratchStringBuilder.length(), 0, -ViewUtilities.scaleText(context, 4), mPaint);
          
          c.translate(0, ViewUtilities.computeLineHeight(mContext, mFontMetrics));
-         
-         roundSummaryText.setLength(0);
-         ModelUtilities.summarizeSecondLineRoundResult(roundSummaryText, mPlayers, summary.getRoundResult());
-         c.drawText(roundSummaryText.toString(), 0, -ViewUtilities.scaleText(context, 4), mPaint);
+
+        mScratchStringBuilder.setLength(0);
+         ModelUtilities.summarizeSecondLineRoundResult(mScratchStringBuilder, mPlayers, summary.getRoundResult());
+         c.drawText(mScratchStringBuilder, 0, mScratchStringBuilder.length(), 0, -ViewUtilities.scaleText(context, 4), mPaint);
          
          
          Paint fillPaint;
@@ -87,17 +90,17 @@ public class DoubleLineDrawStrategy implements DrawStrategy {
     public void drawRoundScore(Context context, Canvas c, int score) {
         c.save();
         c.translate(0, ViewUtilities.computeLineHeight(context, mFontMetrics) * 0.5f);
-        
+
         String textToDraw = "" + score;
         float textWidth = mPaint.measureText(textToDraw);
 
         float widthPerPlayer = getWidthPerPlayer();
-        
+
         c.drawText(textToDraw,
                 ViewUtilities.computeCentredStringStart(0, widthPerPlayer, textWidth),
                 -ViewUtilities.scaleText(context, 4),
                 mPaint);
-        
+
         c.restore();
     }
 
@@ -105,19 +108,17 @@ public class DoubleLineDrawStrategy implements DrawStrategy {
     public float computeRoundSummaryWidth(List<RoundSummary> roundSummaries) {
         
         float maxWidth = 0;
-        
-        StringBuilder roundSummaryText = new StringBuilder();
-        
-        for (RoundSummary roundSummary : roundSummaries) {
-            ModelUtilities.summarizeFirstLineRoundSummary(roundSummaryText, mPlayers, roundSummary.getRoundResult());
-           
-            maxWidth = Math.max(maxWidth, mPaint.measureText(roundSummaryText.toString()));
-            
-            roundSummaryText.setLength(0);
-            ModelUtilities.summarizeSecondLineRoundResult(roundSummaryText, mPlayers, roundSummary.getRoundResult());
-            maxWidth = Math.max(maxWidth, mPaint.measureText(roundSummaryText.toString()));
-            roundSummaryText.setLength(0);
 
+
+
+        for (RoundSummary roundSummary : roundSummaries) {
+            mScratchStringBuilder.setLength(0);
+            ModelUtilities.summarizeFirstLineRoundSummary(mScratchStringBuilder, mPlayers, roundSummary.getRoundResult());
+            maxWidth = Math.max(maxWidth, mPaint.measureText(mScratchStringBuilder, 0,  mScratchStringBuilder.length()));
+
+            mScratchStringBuilder.setLength(0);
+            ModelUtilities.summarizeSecondLineRoundResult(mScratchStringBuilder, mPlayers, roundSummary.getRoundResult());
+            maxWidth = Math.max(maxWidth, mPaint.measureText(mScratchStringBuilder, 0, mScratchStringBuilder.length()));
         }
         
         return  maxWidth + 5;

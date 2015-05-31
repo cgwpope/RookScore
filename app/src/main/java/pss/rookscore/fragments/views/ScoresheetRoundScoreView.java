@@ -107,9 +107,16 @@ public class ScoresheetRoundScoreView extends View {
     }
 
     public void setGameStateModel(GameStateModel model) {
+
+        GameStateModel oldModel = mModel;
         mModel = model;
 //        mDrawStrategy = DrawStrategyFactory.buildDrawStrategy(getContext(), mTextPaint, mModel.getPlayers(), mModel.computeRoundScores(), getWidth());
-        scoreUpdated();
+
+        if(!mModel.equals(oldModel)){
+            scoreUpdated();
+        }
+
+
     }
 
     public void scoreUpdated() {

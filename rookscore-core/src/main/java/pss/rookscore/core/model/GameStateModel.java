@@ -41,6 +41,35 @@ public class GameStateModel implements Serializable {
             this(toCopy.getRuleSet(), toCopy.getCaller(), toCopy.getPartners(), toCopy.getBid(), toCopy.getMade());
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            RoundResult that = (RoundResult) o;
+
+            if (mBid != that.mBid) return false;
+            if (mMade != that.mMade) return false;
+            if (mCaller != null ? !mCaller.equals(that.mCaller) : that.mCaller != null)
+                return false;
+            if (mPartners != null ? !mPartners.equals(that.mPartners) : that.mPartners != null)
+                return false;
+            if (mRuleSet != null ? !mRuleSet.equals(that.mRuleSet) : that.mRuleSet != null)
+                return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = mCaller != null ? mCaller.hashCode() : 0;
+            result = 31 * result + (mPartners != null ? mPartners.hashCode() : 0);
+            result = 31 * result + mBid;
+            result = 31 * result + mMade;
+            result = 31 * result + (mRuleSet != null ? mRuleSet.hashCode() : 0);
+            return result;
+        }
+
         public Player getCaller() {
             return mCaller;
         }
@@ -197,4 +226,23 @@ public class GameStateModel implements Serializable {
         return newScores;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        GameStateModel that = (GameStateModel) o;
+
+        if (!mPlayers.equals(that.mPlayers)) return false;
+        if (!mRounds.equals(that.mRounds)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mPlayers.hashCode();
+        result = 31 * result + mRounds.hashCode();
+        return result;
+    }
 }

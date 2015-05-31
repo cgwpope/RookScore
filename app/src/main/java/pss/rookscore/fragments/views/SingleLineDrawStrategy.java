@@ -21,10 +21,15 @@ public class SingleLineDrawStrategy implements DrawStrategy {
     private final Paint mPaint;
     private final Paint.FontMetrics mFontMetrics;
 
+    private final LinearGradient mSuccessGradient;
+    private final LinearGradient mFailGradient;
+
     private Context mContext;
     private Paint mCheckMarkPaint;
     private Paint mXMarkPaint;
     private float mRoundSummaryWidth;
+
+    private final StringBuilder mScratchStringBuilder = new StringBuilder(100);
 
     static final int DEFAULT_ROUND_SUMMARY_WIDTH = 100;
 
@@ -46,6 +51,9 @@ public class SingleLineDrawStrategy implements DrawStrategy {
         
         mRoundSummaryWidth = computeRoundSummaryWidth(roundSummaries);
         
+        mSuccessGradient = new LinearGradient(0, 0, mRoundSummaryWidth, 0, 0x00006600, 0x80006600, TileMode.MIRROR);
+        mFailGradient = new LinearGradient(0, 0, mRoundSummaryWidth, 0, 0x00ff0000, 0x60ff0000, TileMode.MIRROR);
+        
         
 
     }
@@ -57,17 +65,17 @@ public class SingleLineDrawStrategy implements DrawStrategy {
 
     @Override
     public void drawRoundSummary(Context context, Canvas c, RoundSummary roundSummary) {
-        StringBuilder roundSummaryText = new StringBuilder();
-        summarizeRoundResult(roundSummaryText, roundSummary.getRoundResult(), mPlayers);
-        c.drawText(roundSummaryText.toString(), 0, -ViewUtilities.scaleText(context, 4), mPaint);
+        mScratchStringBuilder.setLength(0);
+        summarizeRoundResult(mScratchStringBuilder, roundSummary.getRoundResult(), mPlayers);
+        c.drawText(mScratchStringBuilder, 0, mScratchStringBuilder.length(), 0, -ViewUtilities.scaleText(context, 4), mPaint);
         
         Paint fillPaint;
         if(roundSummary.getRoundResult().getMade() >= roundSummary.getRoundResult().getBid()){
             fillPaint = mCheckMarkPaint;
-            fillPaint.setShader(new LinearGradient(0, 0, mRoundSummaryWidth, 0, 0x00006600, 0x80006600, TileMode.MIRROR));
+            fillPaint.setShader(mSuccessGradient);
         } else {
             fillPaint = mXMarkPaint;
-            fillPaint.setShader(new LinearGradient(0, 0, mRoundSummaryWidth, 0, 0x00ff0000, 0x60ff0000, TileMode.MIRROR));
+            fillPaint.setShader(mFailGradient);
         }
         
         c.drawRect(-ViewUtilities.scaleText(context, 4), -computeHeight() - ViewUtilities.scaleText(context, 4), mTotalWidth - mRoundSummaryWidth + ViewUtilities.scaleText(context, 4), ViewUtilities.scaleText(context, 4), fillPaint);
@@ -76,12 +84,13 @@ public class SingleLineDrawStrategy implements DrawStrategy {
 
     @Override
     public void drawRoundScore(Context context,  Canvas canvas, int score) {
-        String textToDraw = "" + score;
-        float textWidth = mPaint.measureText(textToDraw);
+        mScratchStringBuilder.setLength(0);
+        mScratchStringBuilder.append(score);
+        float textWidth = mPaint.measureText(mScratchStringBuilder, 0, mScratchStringBuilder.length());
 
         float widthPerPlayer = getWidthPerPlayer();
         
-        canvas.drawText(textToDraw,
+        canvas.drawText(mScratchStringBuilder, 0, mScratchStringBuilder.length(),
                 ViewUtilities.computeCentredStringStart(0, widthPerPlayer, textWidth),
                 -ViewUtilities.scaleText(context, 4),
                 mPaint);
@@ -96,9 +105,9 @@ public class SingleLineDrawStrategy implements DrawStrategy {
 
         for (RoundSummary roundSummary : roundSummaries) {
             float length;
-            StringBuilder sb = new StringBuilder();
-            summarizeRoundResult(sb, roundSummary.getRoundResult(), mPlayers);
-            length = mPaint.measureText(sb.toString());
+            mScratchStringBuilder.setLength(0);
+            summarizeRoundResult(mScratchStringBuilder, roundSummary.getRoundResult(), mPlayers);
+            length = mPaint.measureText(mScratchStringBuilder, 0, mScratchStringBuilder.length());
 
             // add a bit of padding around text
             length += 10;

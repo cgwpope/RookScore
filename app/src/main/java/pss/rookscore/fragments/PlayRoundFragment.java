@@ -46,6 +46,8 @@ public class PlayRoundFragment extends Fragment implements BidFragment.BidSelect
     private final Stack<RoundStateModel> mRoundStateStack = new Stack<RoundStateModel>();
     private View mView;
 
+
+
     public static interface PlayRoundFragmentParent {
 
         GameStateModel getGameStateModel();
@@ -82,14 +84,13 @@ public class PlayRoundFragment extends Fragment implements BidFragment.BidSelect
         initRound();
 
         if(savedInstanceState != null){
-            mRoundController.setRoundState((RoundStateModel)savedInstanceState.getSerializable(ROUND_STATE_MODEL));
-            mRoundStateStack.addAll((Stack<RoundStateModel>)savedInstanceState.getSerializable(ROUND_BACK_STACK));
+            restoreInstanceState(savedInstanceState);
         }
 
 
     }
 
-    private void initRound() {
+    public void initRound() {
         mRoundStateStack.clear();
 
         mModel = ((PlayRoundFragmentParent)getActivity()).getGameStateModel();
@@ -103,6 +104,10 @@ public class PlayRoundFragment extends Fragment implements BidFragment.BidSelect
             throw new IllegalArgumentException("Unable to determine rule set for this game");
         }
         mRoundController = new RoundController(rrs);
+    }
+
+    public boolean hasStartedBidding() {
+        return mRoundStateStack.size() > 0;
     }
 
     @Nullable
@@ -143,6 +148,12 @@ public class PlayRoundFragment extends Fragment implements BidFragment.BidSelect
         outState.putSerializable(ROUND_STATE_MODEL, mRoundController.getRoundState());
         outState.putSerializable(ROUND_BACK_STACK, mRoundStateStack);
     }
+
+    public void restoreInstanceState(Bundle savedInstanceState) {
+        mRoundController.setRoundState((RoundStateModel)savedInstanceState.getSerializable(ROUND_STATE_MODEL));
+        mRoundStateStack.addAll((List<RoundStateModel>)savedInstanceState.getSerializable(ROUND_BACK_STACK));
+    }
+
 
 
     @Override
@@ -302,10 +313,11 @@ public class PlayRoundFragment extends Fragment implements BidFragment.BidSelect
         //TODO: Ensure size == 1
 
         if(playerNames.size() == 1){
-            mRoundController.playerSelected(playerNames.get(0));
 
-            //store state
+            //store state - pre change
             mRoundStateStack.push(new RoundStateModel(mRoundController.getRoundState()));
+
+            mRoundController.playerSelected(playerNames.get(0));
 
             //advance to next
             mRoundController.getRoundState().setState(mRoundController.nextState());
@@ -321,11 +333,11 @@ public class PlayRoundFragment extends Fragment implements BidFragment.BidSelect
     }
 
     public void bidSelected(int bid) {
-        // assume done in order - needs to be improved...
-        mRoundController.applyBid(bid);
-
         //store state
         mRoundStateStack.push(new RoundStateModel(mRoundController.getRoundState()));
+
+        // assume done in order - needs to be improved...
+        mRoundController.applyBid(bid);
 
 
         //advance to next state
@@ -334,6 +346,7 @@ public class PlayRoundFragment extends Fragment implements BidFragment.BidSelect
 
         updateBidView(AnimateRequest.ANIMATE_FORWARD);
     }
+
 
 
 

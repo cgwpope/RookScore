@@ -45,6 +45,12 @@ public class PlayRoundActivity extends Activity implements  PlayRoundFragment.Pl
         mModel = (GameStateModel)getIntent().getSerializableExtra(GAME_STATE_MODEL);
         setContentView(R.layout.play_round_activity);
         mPlayRoundFragment = (PlayRoundFragment)getFragmentManager().findFragmentById(R.id.playerRoundFragment);
+
+        Bundle b = getIntent().getBundleExtra(GameActivity.PLAY_ROUND_STATE);
+        if(b != null){
+            mPlayRoundFragment.restoreInstanceState(b);
+        }
+
     }
 
 

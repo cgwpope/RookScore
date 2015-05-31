@@ -205,12 +205,6 @@ public class PlayerListFragment extends Fragment {
             mPlayerListView.setMultiChoiceModeListener(mMultiselectlistener);
         }
 
-
-        if(mPlayerListSelectionListener == null){
-            throw new IllegalArgumentException("Parent activity or fragment must register a " + PlayerSelectionListener.class);
-        }
-
-        
         populateList();
     }
 

@@ -19,6 +19,8 @@ public class SingleLineDrawStrategy implements DrawStrategy {
     private final int mTotalWidth;
     private final List<Player> mPlayers;
     private final Paint mPaint;
+    private final Paint.FontMetrics mFontMetrics;
+
     private Context mContext;
     private Paint mCheckMarkPaint;
     private Paint mXMarkPaint;
@@ -30,7 +32,9 @@ public class SingleLineDrawStrategy implements DrawStrategy {
         mContext = context;
         mTotalWidth = totalWidth;
         mPlayers = players;
+
         mPaint = p;
+        mFontMetrics = mPaint.getFontMetrics();
         
         mCheckMarkPaint = new Paint();
         mCheckMarkPaint.setStyle(Style.FILL);
@@ -48,7 +52,7 @@ public class SingleLineDrawStrategy implements DrawStrategy {
 
     @Override
     public float computeHeight() {
-        return ViewUtilities.computeLineHeight(mContext, mPaint);
+        return ViewUtilities.computeLineHeight(mContext, mFontMetrics);
     }
 
     @Override

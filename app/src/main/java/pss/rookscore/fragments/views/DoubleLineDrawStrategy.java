@@ -16,7 +16,10 @@ import android.graphics.Shader.TileMode;
 public class DoubleLineDrawStrategy implements DrawStrategy {
 
     private Context mContext;
-    private Paint mPaint;
+
+    private final Paint mPaint;
+    private final Paint.FontMetrics mFontMetrics;
+
     private List<Player> mPlayers;
     private List<RoundSummary> mRoundSummaries;
     private int mTotalWidth;
@@ -25,7 +28,9 @@ public class DoubleLineDrawStrategy implements DrawStrategy {
 
     public DoubleLineDrawStrategy(Context context, Paint p, List<Player> players, List<RoundSummary> roundSummaries, int totalWidth) {
         mContext = context;
+
         mPaint = p;
+        mFontMetrics = mPaint.getFontMetrics();
         
         mCheckMarkPaint = new Paint();
         mCheckMarkPaint.setStyle(Style.FILL);
@@ -45,7 +50,7 @@ public class DoubleLineDrawStrategy implements DrawStrategy {
 
     @Override
     public float computeHeight() {
-        return  2 * ViewUtilities.computeLineHeight(mContext, mPaint);
+        return  2 * ViewUtilities.computeLineHeight(mContext, mFontMetrics);
     }
 
 
@@ -58,7 +63,7 @@ public class DoubleLineDrawStrategy implements DrawStrategy {
         
          c.drawText(roundSummaryText.toString(), 0, -ViewUtilities.scaleText(context, 4), mPaint);
          
-         c.translate(0, ViewUtilities.computeLineHeight(mContext, mPaint));
+         c.translate(0, ViewUtilities.computeLineHeight(mContext, mFontMetrics));
          
          roundSummaryText.setLength(0);
          ModelUtilities.summarizeSecondLineRoundResult(roundSummaryText, mPlayers, summary.getRoundResult());
@@ -81,7 +86,7 @@ public class DoubleLineDrawStrategy implements DrawStrategy {
     @Override
     public void drawRoundScore(Context context, Canvas c, int score) {
         c.save();
-        c.translate(0, ViewUtilities.computeLineHeight(context, mPaint) * 0.5f);
+        c.translate(0, ViewUtilities.computeLineHeight(context, mFontMetrics) * 0.5f);
         
         String textToDraw = "" + score;
         float textWidth = mPaint.measureText(textToDraw);

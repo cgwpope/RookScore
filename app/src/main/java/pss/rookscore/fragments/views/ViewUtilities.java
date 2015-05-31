@@ -17,8 +17,8 @@ public class ViewUtilities {
     }
 
 
-    public static float computeLineHeight(Context context, Paint paint) {
-        return -paint.getFontMetrics().ascent + paint.getFontMetrics().descent + ViewUtilities.scaleText(context, 1);
+    public static float computeLineHeight(Context context, Paint.FontMetrics paintFontMetrics) {
+        return -paintFontMetrics.ascent + paintFontMetrics.descent + ViewUtilities.scaleText(context, 1);
     }
 
     public static Paint defaultTextPaint(Context context) {

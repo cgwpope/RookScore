@@ -21,7 +21,21 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 
 public class ScoresheetHeaderView extends View {
 
+    private class PlayerAndName {
+        public final Player mPlayer;
+        public final String mPlayerName;
+
+        public PlayerAndName(Player p ){
+            mPlayer = p;
+            mPlayerName = p.toString();
+        }
+    }
+
+
+
     private final Paint mPaint;
+    private final Paint.FontMetrics mFontMetrics;
+
     private GameStateModel mModel;
     private List<RoundSummary> mRoundScores;
     
@@ -30,7 +44,13 @@ public class ScoresheetHeaderView extends View {
     private DrawStrategy mDrawStrategy;
     private StarPath mStarPath;
     private ValueAnimator mAnimator;
-    private List<Player> mPlayerNames;
+
+
+    private List<PlayerAndName> mPlayerList;
+
+    private StringBuilder mScratchStringBuilder = new StringBuilder();
+
+
     private float mCalculatedRoundSummaryWidth;
     private ArrayList<String> mShorterPlayerNames;
     private boolean[] mPlayerHasWonRounds;
@@ -39,6 +59,7 @@ public class ScoresheetHeaderView extends View {
         super(context, attrs);
         mPaint = new Paint(ViewUtilities.defaultTextPaint(context));
         mPaint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+        mFontMetrics = mPaint.getFontMetrics();
 
         mStarPath = new StarPath(context);
         
@@ -70,27 +91,27 @@ public class ScoresheetHeaderView extends View {
             
             
 
-            if (mPlayerNames != null && mPlayerNames.size() > 0) {
+            if (mPlayerList != null && mPlayerList.size() > 0) {
                 // evenly allocate width to players, draw their names
 
                 float roundSummaryWidth = mCalculatedRoundSummaryWidth * mFractionReservedForSummaryColumn;
 
                 float widthAvailable = getWidth() - roundSummaryWidth;
 
-                float widthPerPlayer = widthAvailable / mPlayerNames.size();
+                float widthPerPlayer = widthAvailable / mPlayerList.size();
 
-                for (int i = 0; i < mPlayerNames.size(); i++) {
+                for (int i = 0; i < mPlayerList.size(); i++) {
 
                     
                     // use paint to clip text
-                    Player player = mPlayerNames.get(i);
+                    PlayerAndName player = mPlayerList.get(i);
                     
                     
                     // draw backing star if required
                     if (mPlayerHasWonRounds[i]) {
                         
                         float starX = widthPerPlayer / 2;
-                        float starY = ViewUtilities.computeLineHeight(getContext(), mPaint); 
+                        float starY = ViewUtilities.computeLineHeight(getContext(), mFontMetrics);
                         
                         canvas.save();
                         canvas.translate(starX, starY);
@@ -102,32 +123,32 @@ public class ScoresheetHeaderView extends View {
                     
                     // TODO: Special case for numChars == 0: reduce font size?
                     String textToDraw;
-                    if (!willStringFit(widthPerPlayer, player.toString())) {
+                    if (!willStringFit(widthPerPlayer, player.mPlayerName)) {
                         // try initials
                         textToDraw = mShorterPlayerNames.get(i);
 
                         if(!willStringFit(widthPerPlayer, textToDraw)){
-                            int numChars = mPaint.breakText(player.toString(), false, widthPerPlayer, null);
-                            textToDraw = player.toString().substring(0, numChars);
+                            int numChars = mPaint.breakText(player.mPlayerName, false, widthPerPlayer, null);
+                            textToDraw = player.mPlayerName.substring(0, numChars);
                         } 
                         
                     } else {
-                        textToDraw = player.toString();
+                        textToDraw = player.mPlayerName;
                     }
 
                     //cache?
                     float playerNameWidth = mPaint.measureText(textToDraw);
                     canvas.drawText(textToDraw, ViewUtilities.computeCentredStringStart(0, widthPerPlayer, playerNameWidth), mPaint.getTextSize(), mPaint);
 
-                    textToDraw = ""
-                            + (mRoundScores.size() > 0 ? mRoundScores.get(mRoundScores.size() - 1)
-                                    .getRoundCumulativeScores().get(player) : 0);
-
-
+                    mScratchStringBuilder.setLength(0);
+                    mScratchStringBuilder.append(
+                            mRoundScores.size() > 0 ?
+                                       mRoundScores.get(mRoundScores.size() - 1).getRoundCumulativeScores().get(player.mPlayer) :
+                                        0);
 
                     // now draw the player's score
-                    float scoreWidth = mPaint.measureText(textToDraw);
-                    canvas.drawText(textToDraw,
+                    float scoreWidth = mPaint.measureText(mScratchStringBuilder, 0, mScratchStringBuilder.length());
+                    canvas.drawText(mScratchStringBuilder, 0, mScratchStringBuilder.length(),
                             ViewUtilities.computeCentredStringStart(0, widthPerPlayer, scoreWidth),
                             mPaint.getTextSize() * 2, mPaint);
 
@@ -175,7 +196,7 @@ public class ScoresheetHeaderView extends View {
 
             mCalculatedRoundSummaryWidth = mDrawStrategy.computeRoundSummaryWidth(mRoundScores);
 
-            setMeasuredDimension(width, (int) ViewUtilities.computeLineHeight(getContext(), mPaint) * 2);
+            setMeasuredDimension(width, (int) ViewUtilities.computeLineHeight(getContext(), mFontMetrics) * 2);
         }
     }
 
@@ -186,29 +207,33 @@ public class ScoresheetHeaderView extends View {
 
     public void scoreUpdated() {
         mRoundScores = mModel.computeRoundScores();
-        
-        //initialize invariants
-        mPlayerNames = new ArrayList<>(mModel.getPlayers());
+
+
+        List<Player> players = mModel.getPlayers();
 
         //sort in order of score, if possible
-
         if(mRoundScores.size() > 0){
-            ModelUtilities.sortPlayerNames(mPlayerNames, mModel.getRounds(), mRoundScores);
+            ModelUtilities.sortPlayerNames(players, mModel.getRounds(), mRoundScores);
         }
 
-        
+
         mShorterPlayerNames = new ArrayList<String>();
-        for(int i = 0; i < mPlayerNames.size(); i++){
-            mShorterPlayerNames.add(ModelUtilities.shorterName(mPlayerNames, mPlayerNames.get(i)));
-        }
-        
-        
-        mPlayerHasWonRounds = new boolean[mPlayerNames.size()];
-        for(int i = 0; i < mPlayerNames.size(); i++){
-            mPlayerHasWonRounds[i] = ModelUtilities.playerHasWonARound(mPlayerNames.get(i), mModel.getRounds());
+        for(int i = 0; i < players.size(); i++){
+            mShorterPlayerNames.add(ModelUtilities.shorterName(players, players.get(i)));
         }
 
-        
+
+        mPlayerHasWonRounds = new boolean[players.size()];
+        for(int i = 0; i < players.size(); i++){
+            mPlayerHasWonRounds[i] = ModelUtilities.playerHasWonARound(players.get(i), mModel.getRounds());
+        }
+
+
+        mPlayerList = new ArrayList<>(players.size());
+        for(Player p : mModel.getPlayers()){
+            mPlayerList.add(new PlayerAndName(p));
+        }
+
         invalidate();
         requestLayout();
     }

@@ -28,7 +28,7 @@ public class RoundStateModel implements Serializable {
 
     public RoundStateModel(RoundStateModel toCopy) {
         mState = toCopy.mState;
-        mRoundResult = new GameStateModel.RoundResult(toCopy.getRules(), toCopy.getRoundResult().getCaller(), toCopy.getRoundResult().getPartners(), toCopy.getRoundResult().getBid(), toCopy.getRoundResult().getMade());
+        mRoundResult = new GameStateModel.RoundResult(toCopy.getRules(), toCopy.getRoundResult().getCaller(), new ArrayList<>(toCopy.getRoundResult().getPartners()), toCopy.getRoundResult().getBid(), toCopy.getRoundResult().getMade());
     }
     
     public RookRuleSet getRules() {

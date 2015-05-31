@@ -3,6 +3,7 @@ package pss.rookscore;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,12 +22,12 @@ import pss.rookscore.NFCLifecycleCallbacks.RookScoreNFCBroadcaster;
 import pss.rookscore.core.events.GameOverEvent;
 import pss.rookscore.core.events.GameStateChangedEvent;
 import pss.rookscore.core.events.SpectatorsChangedEvent;
-import pss.rookscore.core.model.ModelUtilities;
-import pss.rookscore.fragments.PlayRoundFragment;
-import pss.rookscore.fragments.ScoresheetFragment;
 import pss.rookscore.core.model.GameStateModel;
+import pss.rookscore.core.model.ModelUtilities;
 import pss.rookscore.core.model.Player;
 import pss.rookscore.core.ruleset.RoundStateModel;
+import pss.rookscore.fragments.PlayRoundFragment;
+import pss.rookscore.fragments.ScoresheetFragment;
 
 public class GameActivity extends Activity implements RookScoreNFCBroadcaster, PlayRoundFragment.PlayRoundFragmentParent {
 
@@ -36,9 +37,12 @@ public class GameActivity extends Activity implements RookScoreNFCBroadcaster, P
 
     private static final int PLAY_ROUND_REQUEST = 1;
 
+    public static final String PLAY_ROUND_STATE = GameActivity.class.getName() + ".PlayRoundState";
+
     private GameStateModel mGameModel = new GameStateModel();
 
     private EventBus mEventBus;
+    private boolean mSwichedOrientation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,17 +117,31 @@ public class GameActivity extends Activity implements RookScoreNFCBroadcaster, P
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //only if PlayRoundFragment is not present as a child
-        if(getFragmentManager().findFragmentById(R.id.playerRoundFragment) == null){
+        Fragment f = getFragmentManager().findFragmentById(R.id.playerRoundFragment);
+        if(f == null || !f.isAdded()){
             getMenuInflater().inflate(R.menu.game_activity, menu);
         }
         return super.onCreateOptionsMenu(menu);
     }
 
+
+
+
     @Override
     protected void onResume() {
         super.onResume();
+
         ScoresheetFragment scoresheetFragment = (ScoresheetFragment) getFragmentManager().findFragmentById(R.id.scoresheetFragment);
         scoresheetFragment.setGameStateModel(mGameModel);
+
+
+        PlayRoundFragment playRoundFragment = (PlayRoundFragment)getFragmentManager().findFragmentById(R.id.playerRoundFragment);
+        if(playRoundFragment != null && playRoundFragment.isAdded()){
+            if(mSwichedOrientation){
+                playRoundFragment.initRound();
+                mSwichedOrientation = false;
+            }
+        }
     }
 
     @Override
@@ -191,14 +209,52 @@ public class GameActivity extends Activity implements RookScoreNFCBroadcaster, P
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable(GAME_STATE_MODEL_KEY, mGameModel);
+
+
+        //could have been hosting PlayRoundFragment
+        //if so - get it to save its state so that it can be resumed by running PlayRoundActivity
+        PlayRoundFragment prf = (PlayRoundFragment) getFragmentManager().findFragmentById(R.id.playerRoundFragment);
+
+        if(prf != null && prf.isAdded()){
+
+            if(prf.hasStartedBidding()){
+                Bundle b = new Bundle();
+
+                prf.onSaveInstanceState(b);
+
+                //If in the middle of bidding...
+                outState.putBundle(PLAY_ROUND_STATE, b);
+            }
+        }
+
+        outState.putBoolean("test", mSwichedOrientation);
+
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+        mSwichedOrientation = savedInstanceState.getBoolean("test");
         Serializable gameState = savedInstanceState.getSerializable(GAME_STATE_MODEL_KEY);
         if (gameState != null) {
             mGameModel = (GameStateModel) gameState;
+        }
+
+        if(savedInstanceState.containsKey(PLAY_ROUND_STATE)){
+            //read this state, switch to playroundactivity
+            Bundle b = savedInstanceState.getBundle(PLAY_ROUND_STATE);
+            if(b != null){
+
+                Intent i = new Intent(GameActivity.this, PlayRoundActivity.class);
+                i.putExtra(PlayRoundActivity.GAME_STATE_MODEL, mGameModel);
+                i.putExtra(PLAY_ROUND_STATE, b);
+
+
+                startActivityForResult(i, PLAY_ROUND_REQUEST);
+
+                mSwichedOrientation = true;
+
+            }
         }
     }
 

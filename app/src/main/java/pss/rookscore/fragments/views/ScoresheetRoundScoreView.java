@@ -16,7 +16,9 @@ import android.view.View;
 
 public class ScoresheetRoundScoreView extends View {
 
-    private Paint mTextPaint;
+    private final Paint mTextPaint;
+    private final Paint.FontMetrics mFontMetrics;
+
     private int mRound;
     private GameStateModel mModel;
     private List<RoundSummary> mRoundSummaries;
@@ -27,6 +29,7 @@ public class ScoresheetRoundScoreView extends View {
     public ScoresheetRoundScoreView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mTextPaint = ViewUtilities.defaultTextPaint(context);
+        mFontMetrics = mTextPaint.getFontMetrics();
         
         //by default, assume a single-line draw strategy, but alter once more data available
 //        mDrawStrategy = new SingleLineDrawStrategy(context, mTextPaint, new ArrayList<String>(), new ArrayList<RoundSummary>(), getWidth());
@@ -59,7 +62,7 @@ public class ScoresheetRoundScoreView extends View {
 
             canvas.save();
             
-            canvas.translate(0, ViewUtilities.computeLineHeight(getContext(), mTextPaint));
+            canvas.translate(0, ViewUtilities.computeLineHeight(getContext(), mFontMetrics));
 
             // display the score per player, and then the round summary
             RoundSummary summary = mRoundSummaries.get(mRound);
@@ -78,7 +81,7 @@ public class ScoresheetRoundScoreView extends View {
             canvas.restore();
             
             //we are done painting the player scores. Move to the round summary, ready to draw texty
-            canvas.translate(getWidth() - mRoundSummaryWidth, ViewUtilities.computeLineHeight(getContext(), mTextPaint));
+            canvas.translate(getWidth() - mRoundSummaryWidth, ViewUtilities.computeLineHeight(getContext(), mFontMetrics));
 
             mDrawStrategy.drawRoundSummary(getContext(), canvas, summary);
         }

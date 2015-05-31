@@ -7,6 +7,8 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 
+import com.google.common.primitives.Doubles;
+
 class StarPath extends Path {
     
     
@@ -16,6 +18,19 @@ class StarPath extends Path {
     private Paint mStarPaint;
     private final int mBaseAlpha = 128;
     private int mAlphaOffset = 0;
+    private PathAndTextSize mPathAndTextSize;
+
+
+    private static class PathAndTextSize {
+        public final Path mPath;
+        public final float mTextSize;
+
+        public PathAndTextSize(Path p, float textSize){
+            mTextSize = textSize;
+            mPath = p;
+        }
+
+    }
 
     public StarPath(Context context) {
         final double triangeBaseWidth = Math.tan(DEGREES_PER_STAR_POINT/2 * RADIANS_PER_DEGREE);
@@ -44,14 +59,22 @@ class StarPath extends Path {
     }
 
     public void drawToCanvas(Canvas canvas, float textSize) {
-        Path p = new Path(this);
-        Matrix m = new Matrix();
-        float scaleFactor = (float)(1/(1 + Math.tan(DEGREES_PER_STAR_POINT / 2 * RADIANS_PER_DEGREE))) * textSize;
-        m.setScale( scaleFactor, scaleFactor);
-        p.transform(m);
-        
+
+        Path p;
+
+        if(mPathAndTextSize != null && Doubles.compare(mPathAndTextSize.mTextSize, textSize) == 0){
+            p = mPathAndTextSize.mPath;
+        } else {
+            p = new Path(this);
+            Matrix m = new Matrix();
+            float scaleFactor = (float)(1/(1 + Math.tan(DEGREES_PER_STAR_POINT / 2 * RADIANS_PER_DEGREE))) * textSize;
+            m.setScale( scaleFactor, scaleFactor);
+            p.transform(m);
+            mPathAndTextSize = new PathAndTextSize(p, textSize);
+        }
+
+
         mStarPaint.setAlpha(mBaseAlpha + mAlphaOffset );
-        
         canvas.drawPath(p, mStarPaint);
         
     }

@@ -88,7 +88,6 @@ public class WebApiHelperTest  {
 
         System.out.println(remoteGameModel.getDelegate().toString(2));
 
-
         helper.submitRemoteGame("http://beta.rook2.chruszcz.ca/api/games/", "chris", "chrispope",remoteGameModel);
     }
 }

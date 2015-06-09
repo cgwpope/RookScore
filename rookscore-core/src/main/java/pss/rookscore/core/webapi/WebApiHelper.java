@@ -6,6 +6,7 @@ import com.google.common.primitives.Ints;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -99,100 +100,36 @@ public class WebApiHelper {
     }
 
     public void submitRemoteGame(String gamesResourceURL, String username, String password, RemoteGame rg) throws IOException {
-        CookieManager cookieManager = new CookieManager();
-        CookieHandler.setDefault(cookieManager);
-
-        URL gameResourceURL = new URL(gamesResourceURL);
-        String authResourceURL = "http://" + gameResourceURL.getHost() + "/api-auth/login/";
-
-
-        //to work around the security model, need to perform HTTP Get first - this will provide us with a CRSF token
-        //so just GET from the game resource first
-        HttpURLConnection connection = (HttpURLConnection) new URL(authResourceURL).openConnection();
-        connection.setInstanceFollowRedirects(false);
-        if(connection.getResponseCode() == HttpURLConnection.HTTP_OK){
-
-            //read the csrf token
-
-            String csrftoken = parseCSRFToken(connection.getHeaderFields().get("Set-Cookie"));
-
-
-            //perform the POST to logig
-            String payload = "username=" + username + "&password="+password+"&csrfmiddlewaretoken=" + csrftoken;
-
-
-            connection = (HttpURLConnection) new URL(authResourceURL).openConnection();
-            connection.setInstanceFollowRedirects(false);
-            connection.setDoInput(true);
+        HttpURLConnection connection = null;
+        PrintWriter w = null;
+        try {
+            connection = (HttpURLConnection) new URL(gamesResourceURL).openConnection();
+            connection.setInstanceFollowRedirects(true);
+//            connection.setDoInput(true);
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-//            connection.setRequestProperty("Cookie", "csrftoken="+ csrftoken.trim());
 
-            PrintWriter w = null;
-            try {
+            connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Api-Key", "12345");
 
-                w = new PrintWriter(new OutputStreamWriter(connection.getOutputStream()));
-                w.print(payload);
-                w.flush();
-                int responseCode = connection.getResponseCode();
+            w = new PrintWriter(new OutputStreamWriter(connection.getOutputStream()));
+            String json = rg.getDelegate().toString();
+            w.print(json);
+            w.flush();
 
-                if(responseCode != HttpURLConnection.HTTP_FORBIDDEN){
+            int responseCode = connection.getResponseCode();
+            System.out.println("Response Code: " + responseCode);
 
-                    csrftoken = parseCSRFToken(connection.getHeaderFields().get("Set-Cookie"));
-
-                    connection = (HttpURLConnection) new URL(gamesResourceURL).openConnection();
-                    connection.setInstanceFollowRedirects(false);
-                    connection.setDoInput(true);
-                    connection.setDoOutput(true);
-                    connection.setRequestMethod("POST");
-
-                    connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-                    connection.setRequestProperty("Accept", "application/json");
-                    connection.setRequestProperty("X-CSRFToken", csrftoken);
-
-                    //should not be denied this time, cookie should be carried over.
-                    //use javax.net.debug to test
-
-
-
-                    w = new PrintWriter(new OutputStreamWriter(connection.getOutputStream()));
-                    w.print(rg.getDelegate().toString());
-                    w.flush();
-                    ByteStreams.copy(connection.getInputStream(), System.out);
-                    responseCode = connection.getResponseCode();
-                    System.out.println(responseCode);
-
-                } else {
-                    //also, copy any response to system.out
-                    ByteStreams.copy(connection.getInputStream(), System.out);
-
-                    throw new IOException("Unable to submit - HTTP Response:" + responseCode);
-                }
-            } finally {
-                if(w != null){
-                    w.close();
-                }
+            //System.out.println("Copy of input stream:");
+            //ByteStreams.copy(connection.getInputStream(), System.out);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(w != null) {
+                w.close();
             }
         }
-    }
-
-    private String parseCSRFToken(List<String> headerFieldValues) {
-        for(String headerFieldValue : headerFieldValues){
-            try {
-                List<HttpCookie> cookies = HttpCookie.parse(headerFieldValue);
-                for (HttpCookie cookie : cookies) {
-                    if ("csrftoken".equals(cookie.getName())) {
-                        return cookie.getValue();
-
-                    }
-                }
-            } catch (IllegalArgumentException e){
-                continue;
-            }
-
-        }
-        return "";
     }
 
     public RemotePlayer[] parseRemotePlayers(String json)  {

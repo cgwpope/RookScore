@@ -24,11 +24,11 @@ public interface RemoteRound extends IJSONObjectWrapper {
     public int getCaller();
     public void setCaller(int callerId);
 
-    public int[] getPartners();
-    public void setPartners(int partnerPlayerIds[]);
+    public Integer[] getPartners();
+    public void setPartners(Integer partnerPlayerIds[]);
 
-    public int[] getOpponents();
-    public void setOpponents(int opponentPlayerIds[]);
+    public Integer[] getOpponents();
+    public void setOpponents(Integer opponentPlayerIds[]);
 
     public int getPointsBid();
     public void setPointsBid(int pointsBid);

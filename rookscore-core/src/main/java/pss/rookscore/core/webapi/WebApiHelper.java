@@ -18,6 +18,7 @@ import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -68,24 +69,24 @@ public class WebApiHelper {
             GameStateModel.RoundResult result = rounds.get(i);
             rr.setCaller(result.getCaller().getId());
 
-            int partners[] = new int[result.getPartners().size()];
-            for(int j = 0; j < partners.length; j++){
-                partners[j] = result.getPartners().get(j).getId();
+            // Partners
+            List<Integer> partners = new ArrayList<>();
+            for(int j = 0; j < result.getPartners().size(); j++){
+                partners.add(result.getPartners().get(j).getId());
             }
+            rr.setPartners(partners.toArray(new Integer[partners.size()]));
 
-
-            rr.setPartners(partners);
-            int opponents[] = new int[gameModel.getPlayers().size() - partners.length - 1];
-            int j = 0;
+            // Opponents
+            List<Integer> opponents = new ArrayList<>();
             for(Player p : gameModel.getPlayers()){
-                if(!Ints.contains(partners, p.getId()) && p.getId() != result.getCaller().getId()){
-                    opponents[j++] = p.getId();
+                // Add anyone who's not a partner or the caller
+                if(partners.contains(p.getId()) && p.getId() != result.getCaller().getId()){
+                    opponents.add(p.getId());
                 }
             }
+            rr.setOpponents(opponents.toArray(new Integer[opponents.size()]));
 
-            rr.setOpponents(opponents);
-
-
+            // Bidding details
             rr.setPointsBid(result.getBid());
             rr.setPointsMade(result.getMade());
 

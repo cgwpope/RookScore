@@ -80,7 +80,7 @@ public class WebApiHelper {
             List<Integer> opponents = new ArrayList<>();
             for(Player p : gameModel.getPlayers()){
                 // Add anyone who's not a partner or the caller
-                if(partners.contains(p.getId()) && p.getId() != result.getCaller().getId()){
+                if(!partners.contains(p.getId()) && p.getId() != result.getCaller().getId()){
                     opponents.add(p.getId());
                 }
             }
